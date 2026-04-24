@@ -1,0 +1,26 @@
+# Lean / Lake
+.olean/
+.ilean/
+.lake/
+build/
+lake-packages/
+lake-manifest.json
+
+# LaTeX
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+
+# OS / editor clutter
+.DS_Store
+Thumbs.db
+*.swp
+*.swo

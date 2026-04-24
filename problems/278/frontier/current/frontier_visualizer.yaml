@@ -1,0 +1,61 @@
+frontier_version: v9
+paper_snapshot: v9-formalization
+date: 2026-04-23
+
+ultimate_problem:
+  name: Erdős #278
+  goal: maximum density of congruence covers
+
+operational_goal:
+  current_form: exact packability and weighted optimization on structured squarefree families
+
+central_abstractions:
+  - squarefree product-space cylinder model
+  - singleton reduction
+  - perfect packing
+  - common-core theorem
+  - graph-link invariant chi_d(G)
+  - weighted common-core graph links
+  - star-triangle normal form
+  - separator/interface dynamic programming
+
+proved_or_consolidated_families:
+  - pair supports
+  - common-core graph links
+  - stars
+  - complete bipartite links
+  - clique-link packability regimes recorded in the paper
+  - weighted clique-link regimes recorded in the paper
+  - triangle-free full-capacity reduction
+  - full-capacity complete bipartite links
+  - one-sided-full complete bipartite links
+  - arbitrary bipartite one-full-side links
+  - weighted tree links via exact dynamic programming
+  - fixed-treewidth graph-link families via exact dynamic programming
+
+formalization_status:
+  current_scope:
+    - product-space core definitions
+    - cylinder disjointness / perfect packing equivalence
+    - pair-support theorem
+    - common-core theorem and finite-color reformulation
+    - graph-link abstractions and chi-pack framework
+    - graph-link stars
+    - complete bipartite graph-link definitions and star reductions
+    - exact small-side complete bipartite theorem
+  next_targets:
+    - remaining complete-bipartite regime a >= d
+    - clique-link packability theorems
+    - weighted clique theorems
+    - triangle-free and one-full-side weighted theorems
+
+killed_or_demoted:
+  - universal closed formula for all of #278
+  - sunflower-capacity characterization
+  - naive Ferrers / straight-bar picture for fully bounded bipartite optimization
+  - pure-volume-only clique formulas
+  - over-reading dense parameterized dreams before proof stabilization
+
+best_next_targets:
+  - weighted complete bipartite links with bounded capacities on both sides
+  - sharper separator-driven exact algorithms beyond fixed treewidth

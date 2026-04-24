@@ -1,0 +1,2 @@
+regarding step-backs and frontier notes: 
+- if we have reached the point that the work that's been produced is paper worthy (in that there is now a valuable new perspective with highly non-trivial progress, if not an outright solution), then: 1) let me know and 2) produce a latest state of the frontier document that we can begin turning into a clean paper + formalizing in lean4. 

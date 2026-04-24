@@ -1,0 +1,28 @@
+problem: 278
+title: Maximum density of congruence covers
+status: active
+solution_status: paper-worthy partial progress; not a full solution
+latest_frontier_version: v9
+latest_frontier: frontier/current/frontier_note.md
+latest_frontier_yaml: frontier/current/frontier_visualizer.yaml
+latest_paper_tex: paper/current/erdos278_paper.tex
+latest_paper_pdf: paper/current/erdos278_paper.pdf
+latest_formalization_root: formalization/lean
+current_center_of_gravity: common-core squarefree graph links
+operational_goal: exact packability and weighted optimization on structured squarefree families
+mathematical_frontier: star-triangle structure plus separator/interface exact solvability
+formalization_status: >
+  finite core theory formalized; graph-link layer formalized; star criteria formalized;
+  substantial complete-bipartite packability library formalized, including the exact small-side theorem
+next_formalization_targets:
+  - remaining complete-bipartite regime a >= d
+  - clique-link packability theorems
+  - weighted clique theorems
+  - triangle-free and one-full-side weighted theorems
+next_math_targets:
+  - weighted complete bipartite links with bounded capacities on both sides
+  - broader separator-driven exact algorithms beyond fixed treewidth
+public_problem_links:
+  - https://www.erdosproblems.com/278
+  - https://www.erdosproblems.com/202
+  - https://www.erdosproblems.com/1190

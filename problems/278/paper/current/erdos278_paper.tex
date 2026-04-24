@@ -1,0 +1,1049 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{lmodern}
+\usepackage{xurl}
+\usepackage[nameinlink]{cleveref}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{conjecture}[theorem]{Conjecture}
+
+\newcommand{\Chi}{\chi}
+\newcommand{\pack}{\mathrm{pack}}
+\newcommand{\E}{\mathcal E}
+\newcommand{\Hh}{\mathcal H}
+\newcommand{\Lk}{\mathcal L}
+\newcommand{\CC}{\mathcal C}
+\newcommand{\wt}{\mathrm{wt}}
+\newcommand{\st}{\mathrm{st}}
+\newcommand{\supp}{\mathrm{supp}}
+\newcommand{\KK}{K_n}
+\newcommand{\core}{\mathrm{core}}
+\newcommand{\pet}{\mathrm{pet}}
+\newcommand{\R}{\mathbb R}
+\newcommand{\N}{\mathbb N}
+\newcommand{\outdeg}{\operatorname{outdeg}}
+
+\title{Squarefree Congruence Packing and Weighted Optimization via Common-Core Graph Links\\\large Working draft, updated through frontier v9}
+\author{}
+\date{April 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We develop a finite structural theory for broad squarefree instances of Erd\H{o}s Problem \#278 on the maximum density of congruence covers. The basic model sends a squarefree modulus family to a product-space cylinder problem, after which exact maximum-density questions become finite support-hypergraph optimization problems. The first layer of the theory is \emph{perfect packing}: cylinders are chosen pairwise disjoint, equivalently the support family admits an intersection-separating assignment of local patterns. We formalize a pair-support criterion, a common-core recursion, and the graph-link invariant \(\Chi_d(G)\), and we record the exact solved packability families that follow from this framework.
+
+We then move beyond perfect packing to exact weighted optimization. Earlier work gave a sharp sub-threshold weighted theorem for clique links when \(0\le t\le n-4\). The present draft incorporates the next frontier advances: an exact weighted formula for clique links at \(t=n-3\), a triangle-free full-capacity reduction to weighted vertex coverage, an exact weighted theorem for full-capacity complete bipartite links, an exact one-sided-full theorem for complete bipartite links with bounded capacities on the other side, and an exact block-gain theorem for arbitrary bipartite links with one full side. We then add a new structural layer: a star--triangle normal form for the graph-link cost \(\Chi_{(d_v)}(F)\), together with exact dynamic programs for weighted tree links and, more generally, weighted graph links of fixed treewidth. In arithmetic squarefree realizations these become exact \#278 maximum theorems or exact algorithms for several broad structured families. We also record the current Lean4 formalization status: the unweighted theory now extends well beyond the core to the abstract graph-link color-count invariant, exact star criteria, structural star-or-empty decompositions for complete bipartite color classes, and the exact complete bipartite theorem in the regime \(a<d\). The clique-packability and weighted theorems remain the next major formalization frontier.
+\end{abstract}
+
+\section{Introduction}
+Erd\H{o}s Problem \#278 asks for the maximum density covered by a finite family of congruence classes with prescribed moduli, and also asks whether the minimum density is achieved when all residues are equal. The minimum side is known; the maximum side remains open. Closely related problems include Erd\H{o}s \#202 on the number of pairwise disjoint congruence classes and Erd\H{o}s \#1190 on the maximal reciprocal mass of such disjoint systems.
+
+The perspective developed here is that the maximum side of \#278 should not be expected to have one universal closed formula. Instead, one should solve broad, natural structural families exactly. The most fruitful family so far is the squarefree common-core graph-link family and its weighted extensions.
+
+This paper is a cleaned-up working draft from the current project frontier. It is not a complete solution of \#278. Its purpose is to isolate the exact finite combinatorics that have emerged so far, to organize the newer weighted results into the same framework, and to identify the part that is already Lean-checked.
+
+Relative to the previous draft, the material added here is still \emph{more for the same paper}, not a signal that the project now needs to be split into a different paper. The conceptual spine remains the same: product-space model \(\to\) perfect packing \(\to\) common-core graph links \(\to\) exact weighted optimization under structural hypotheses. What changed is that the weighted side now reaches materially further beyond cliques and admits a cleaner structural synthesis via local star--triangle decompositions and separator-based dynamic programming on sparse graph-link classes.
+
+\section{Squarefree product-space model}
+Let
+\[
+Q=\prod_{i=1}^d p_i
+\]
+be squarefree. We work in the product space
+\[
+X=\prod_{i=1}^d \Omega_i,
+\]
+where initially \(|\Omega_i|=p_i\), and after singleton reduction a coordinate may shrink to \(p_i-1\).
+
+If
+\[
+S\subseteq [d]:=\{1,\dots,d\},
+\qquad
+n_S=\prod_{i\in S} p_i,
+\]
+then a residue class modulo \(n_S\) becomes an \(S\)-cylinder
+\[
+C_S(a)=\{x\in X: x_i=a_i\text{ for all }i\in S\}.
+\]
+Its density is
+\[
+\mu(C_S)=\prod_{i\in S}\frac1{p_i}=\frac1{n_S}.
+\]
+Thus squarefree instances of \#278 become finite product-measure optimization problems over one cylinder per support set.
+
+\subsection{Singleton reduction}
+If singleton supports \(\{i\}\) are present for \(i\in T\), choose their cylinders first, say \(x_i=0\). These cover everything outside the residual box
+\[
+R_T=\{x_i\neq 0\text{ for all }i\in T\}.
+\]
+The residual coordinate sizes become
+\[
+d_i=
+\begin{cases}
+ p_i-1,& i\in T,\\
+ p_i,& i\notin T.
+\end{cases}
+\]
+For \emph{maximum coverage}, one may then optimize the remaining cylinders inside \(R_T\). We emphasize that singleton reduction is a maximum-coverage tool, not by itself a perfect-packing theorem.
+
+\section{Perfect packing and intersection-separating colorings}
+\begin{definition}
+A support family \(\Hh\subseteq 2^{[d]}\setminus\{\varnothing\}\) is \emph{perfectly packable} if one can choose one cylinder \(C_S(a_S)\) for each \(S\in\Hh\) so that all chosen cylinders are pairwise disjoint.
+\end{definition}
+
+Two cylinders \(C_S(a_S)\) and \(C_T(a_T)\) are disjoint if and only if there exists a coordinate in the overlap where they differ.
+
+\begin{proposition}[intersection-separating formulation]
+A support family \(\Hh\) is perfectly packable if and only if one can choose patterns
+\[
+a_S\in \prod_{i\in S}\Omega_i
+\qquad (S\in \Hh)
+\]
+so that for all distinct \(S,T\in\Hh\),
+\[
+a_S|_{S\cap T}\neq a_T|_{S\cap T}.
+\]
+If \(S\cap T=\varnothing\), the corresponding cylinders always intersect.
+\end{proposition}
+
+\begin{proof}
+If the chosen cylinders are pairwise disjoint, then for each distinct \(S,T\in \Hh\) there must be some coordinate in \(S\cap T\) on which the assigned patterns differ; otherwise the two cylinders would agree on every common constrained coordinate and would therefore intersect. This proves the necessity of the intersection-separating condition.
+
+Conversely, assume that patterns \(a_S\) have been chosen so that for all distinct \(S,T\in \Hh\) one has
+\[
+a_S|_{S\cap T}\neq a_T|_{S\cap T}.
+\]
+Then for every distinct pair \(S,T\) there exists \(i\in S\cap T\) with \(a_S(i)\neq a_T(i)\), and hence the cylinders \(C_S(a_S)\) and \(C_T(a_T)\) are disjoint. Therefore the family is perfectly packable.
+
+Finally, if the cylinders are pairwise disjoint, the density of their union is the sum of their densities. Since the cylinder indexed by \(S\) has density \(1/n_S\), the exact covered density is
+\[
+M(\Hh)=\sum_{S\in \Hh}\frac1{n_S}.
+\]
+\end{proof}
+
+Whenever perfect packing exists,
+\[
+M(\Hh)=\sum_{S\in \Hh}\frac1{n_S}.
+\]
+Thus perfect packing gives exact maxima for \#278 in those squarefree families.
+
+\section{Pair supports, common cores, and graph links}
+\subsection{Pair supports}
+If supports all have size two, they form a graph \(G\) on the coordinate set.
+
+\begin{theorem}[pair-support theorem]\label{thm:pair}
+Let \(G\) be a graph on vertex set \([d]\), and let the coordinate capacities be \(|\Omega_i|=d_i\). The pair supports indexed by \(E(G)\) are perfectly packable if and only if
+\[
+\nu(G)\le 1
+\qquad\text{and}\qquad
+\deg_G(i)\le d_i\quad\forall i.
+\]
+Here \(\nu(G)\) is the matching number.
+\end{theorem}
+
+\begin{proof}
+If \(G\) has two disjoint edges, then the corresponding cylinders fix disjoint coordinates and therefore always intersect. So \(\nu(G)\le 1\) is necessary. If two edges share a vertex \(i\), then the corresponding cylinders are disjoint exactly when they use different \(i\)-values, so all incident edges at \(i\) need distinct \(i\)-colors; hence \(\deg_G(i)\le d_i\) is necessary.
+
+Conversely, if every pair of edges intersects and every vertex has enough colors, assign distinct local colors at each vertex to all its incident edges. Then any two edges share some vertex, and at that shared vertex their colors differ, so the corresponding cylinders are disjoint.
+\end{proof}
+
+\subsection{Common-core theorem}
+Suppose every support contains a fixed core \(C\), and that the non-core pieces live on petal coordinates disjoint from \(C\). Write
+\[
+\Hh=C*\Lk:=\{C\cup L:L\in \Lk\},
+\qquad
+L\cap C=\varnothing\quad (L\in\Lk).
+\]
+Let
+\[
+D_C:=\prod_{i\in C} d_i
+\]
+be the number of available core patterns.
+
+\begin{definition}
+Let \(\Chi_{\pack}(\Lk)\) denote the least number of colors needed to partition \(\Lk\) into perfectly packable subfamilies.
+\end{definition}
+
+\begin{theorem}[common-core theorem]\label{thm:common-core}
+Under the disjoint-petals convention above,
+\[
+C*\Lk\text{ is perfectly packable}
+\iff
+\Chi_{\pack}(\Lk)\le D_C.
+\]
+\end{theorem}
+
+\begin{proof}
+Assume first that \(C*\Lk\) is perfectly packable. For each \(L\in\Lk\), choose a pattern
+\[
+a_{C\cup L}\in \prod_{i\in C\cup L}\Omega_i
+\]
+so that distinct supports receive intersection-separating patterns. Restrict each pattern to the core and define
+\[
+\core(L):=a_{C\cup L}|_C\in \prod_{i\in C}\Omega_i.
+\]
+Because the petals are disjoint from the core, the support map \(L\mapsto C\cup L\) is injective, so each link support inherits a well-defined core pattern. Partition \(\Lk\) into color classes according to the value of \(\core(L)\).
+
+There are at most \(D_C\) such classes, because \(D_C\) is exactly the number of patterns on the core. Fix one color class, and let \(L_1\neq L_2\) lie in that class. Then the corresponding supports \(C\cup L_1\) and \(C\cup L_2\) have the same assigned pattern on \(C\). Since the original packing separates these two supports, the separating coordinate cannot lie in \(C\); therefore it lies in \(L_1\cap L_2\). Hence the induced patterns on the link supports form a perfect packing of that color class. Thus \(\Lk\) is partitioned into at most \(D_C\) perfectly packable classes, and so \(\Chi_{\pack}(\Lk)\le D_C\).
+
+Conversely, suppose
+\[
+\Lk=\Lk_1\sqcup\cdots\sqcup \Lk_m,
+\qquad m\le D_C,
+\]
+where each \(\Lk_r\) is perfectly packable. Choose distinct core patterns
+\[
+b^{(1)},\dots,b^{(m)}\in \prod_{i\in C}\Omega_i.
+\]
+For each color class \(\Lk_r\), choose a perfect-packing assignment
+\[
+c^{(r)}_L\in \prod_{i\in L}\Omega_i
+\qquad(L\in \Lk_r).
+\]
+Now assign to the support \(C\cup L\) with \(L\in \Lk_r\) the combined pattern whose restriction to \(C\) is \(b^{(r)}\) and whose restriction to \(L\) is \(c^{(r)}_L\). This is well defined because \(C\cap L=\varnothing\).
+
+If \(L_1\in \Lk_r\) and \(L_2\in \Lk_s\) with \(r\neq s\), then the assigned patterns differ already on the core because \(b^{(r)}\neq b^{(s)}\). If instead \(r=s\), then the two supports lie in the same perfectly packable link class and are therefore separated on \(L_1\cap L_2\). In either case the supports \(C\cup L_1\) and \(C\cup L_2\) are separated. Hence \(C*\Lk\) is perfectly packable.
+\end{proof}
+
+\begin{remark}[formalization convention]
+The current Lean development formalizes \cref{thm:common-core} with an explicit hypothesis asserting that every petal support is disjoint from the core. In the prose of this paper we bake that hypothesis into the notation \(C*\Lk\).
+\end{remark}
+
+\subsection{Graph links and \(\Chi_d(G)\)}
+When the link \(\Lk\) is a graph \(G\), \cref{thm:pair} turns \cref{thm:common-core} into a purely graph-theoretic invariant.
+
+\begin{definition}
+Let \(G\) be a graph with vertex capacities \(d_v\). Define \(\Chi_d(G)\) to be the minimum number of colors needed to partition \(E(G)\) into color classes \(G_t\) such that each \(G_t\) satisfies
+\[
+\nu(G_t)\le 1
+\qquad\text{and}\qquad
+\deg_{G_t}(v)\le d_v\quad\forall v.
+\]
+\end{definition}
+
+\begin{corollary}[common-core graph-link theorem]\label{cor:graph-link}
+Under the same disjoint-petals convention,
+\[
+C*G\text{ is perfectly packable}
+\iff
+\Chi_d(G)\le D_C.
+\]
+\end{corollary}
+
+This invariant is the main operational object of the project.
+
+\section{Solved graph-link families on the packability side}
+\subsection{Stars}
+For a star \(K_{1,r}\) centered at a vertex of capacity \(d\),
+\[
+\Chi_d(K_{1,r})=\left\lceil \frac{r}{d}\right\rceil.
+\]
+
+\subsection{Complete bipartite links}
+Let \(a\le b\), and suppose all capacities are equal to \(d\). Then
+\[
+\Chi_d(K_{a,b})=
+\begin{cases}
+\left\lceil \dfrac{ab}{d}\right\rceil,& a\ge d,\\[8pt]
+a\left\lfloor \dfrac{b}{d}\right\rfloor+\min(a,b\bmod d),& a<d.
+\end{cases}
+\]
+The correct interpretation is in terms of arbitrary row/column stars, not contiguous geometric bars.
+
+\begin{remark}[formalization checkpoint]
+The current Lean development already covers the small-side regime \(a<d\) in this complete bipartite theorem, together with the structural fact that every packable color class in a complete bipartite link is empty or contained in a single row-star or column-star. The large-side regime \(a\ge d\) and the clique-link theorems remain outside the present formalization.
+\end{remark}
+
+\subsection{Complete graph links: uniform capacities}
+For \(K_n\) with uniform capacity \(d\), the binary case \(d=2\) is exceptional, while every \(d\ge 3\) is completely solved.
+
+\begin{theorem}[uniform clique-link theorem]\label{thm:uniform-clique}
+For every \(d\ge 3\) and every \(n\ge 3\),
+\[
+\Chi_d(K_n)=
+\max\left(
+\left\lceil\frac{\binom n2}{d}\right\rceil,
+\ n-2
+\right).
+\]
+For \(d=2\), one has the separate exact formula
+\[
+\Chi_2(K_n)=
+\begin{cases}
+\dfrac{n(n-1)}6, & n\equiv1,3\pmod6,\\[6pt]
+\dfrac{n(n-1)+4}{6}, & n\equiv5\pmod6,\\[6pt]
+\dfrac{n^2}{6}, & n\equiv0\pmod6,\\[6pt]
+\dfrac{n^2+2}{6}, & n\equiv2,4\pmod6.
+\end{cases}
+\]
+\end{theorem}
+
+The lower bound in \cref{thm:uniform-clique} is the maximum of the obvious volume bound \(\lceil \binom n2/d\rceil\) and the Kneser bound \(n-2\). The matching upper bound is obtained by combining two previously established ingredients from the project: a volume-sharp theorem for all \(d\ge 3\) in the regime \(n\ge 2d-1\), proved using explicit base-block tournament score sequences and a \(+2d\) induction; and an exact strip theorem showing that for \(d+2\le n\le 2d-2\) the Kneser lower bound \(n-2\) is already sharp. The remaining cases are immediate. We therefore record \cref{thm:uniform-clique} here as a consolidated earlier result and concentrate below on the weighted theorems whose proofs are written out in full.
+
+\subsection{Complete graph links: nonuniform capacities}
+The uniform theorem is now a corollary of a broader nonuniform result.
+
+\begin{theorem}[exact nonuniform \((n-2)\)-criterion]\label{thm:nonuniform-strip}
+Let \(K_n\) have vertex capacities \(d_1,\dots,d_n\). Then
+\[
+\Chi_{(d_i)}(K_n)=n-2
+\]
+if and only if there exist distinct vertices \(x,y\) with \(d_x,d_y\ge 2\) such that, after sorting the remaining capacities increasingly as
+\[
+c_1\le c_2\le \cdots \le c_{n-2},
+\]
+one has
+\[
+\sum_{i=1}^k (c_i-2)\ge \binom{k}{2}
+\qquad(1\le k\le n-2).
+\]
+\end{theorem}
+
+\begin{proof}
+We use the bounded tournament-score criterion arising from Landau's theorem: if
+\[
+u_1\le \nu_2\le \cdots \le \nu_m
+\]
+are nonnegative integers, then there exists a tournament on \(m\) vertices whose outdegrees are bounded above by the \(\nu_i\) if and only if
+\[
+\sum_{i=1}^k \nu_i\ge \binom{k}{2}
+\qquad(1\le k\le m).
+\]
+Applied below, the bounds will be \(\nu_i=c_i-2\).
+
+Assume first that \(\Chi_{(d_i)}(K_n)=n-2\). Thus the edges of \(K_n\) admit a decomposition into \(n-2\) intersecting classes, each respecting the degree bounds. An intersecting family of edges in a clique is either a star or a triangle. Let there be \(s\) star classes and \(q\) triangle classes, so \(s+q=n-2\). If \(S\) is the set of star centers, then the union of all star classes is contained in the set of all edges incident to \(S\), which has size
+\[
+|T(S)|=s(n-s)+\binom{s}{2}.
+\]
+Each triangle class contributes at most three further edges, so the total number of covered edges is at most
+\[
+s(n-s)+\binom{s}{2}+3q.
+\]
+Since all \(\binom n2\) edges of \(K_n\) are covered, we must have equality with \(q+s=n-2\). A direct calculation shows that, under this constraint, the quantity above is strictly maximized only when \(q=1\) and \(s=n-3\). Therefore every optimal \((n-2)\)-piece decomposition consists of exactly one triangle and exactly \(n-3\) stars.
+
+Let \(x,y,z\) be the triangle vertices, and let the star centers be the remaining \(n-3\) vertices. Delete \(x\) and \(y\), and consider the remaining \(m=n-2\) vertices; these are the \(n-3\) star centers together with \(z\). Define a tournament \(T\) on these \(m\) vertices by orienting an edge \(uv\) toward \(u\) exactly when the original edge \(uv\) of \(K_n\) belongs to the star centered at \(u\). Because \(z\) is not a star center, every edge incident to \(z\) is directed toward the other endpoint, so \(z\) is a sink of \(T\).
+
+For a star center \(v\), the corresponding star in the decomposition contains the two compulsory triangle-to-center edges \(vx\) and \(vy\), together with one edge \(vw\) for each out-neighbor \(w\) of \(v\) in \(T\). Hence
+\[
+|\st(v)|=2+\outdeg_T(v).
+\]
+Since the class centered at \(v\) must respect the capacity bound, we obtain
+\[
+outdeg_T(v)\le d_v-2.
+\]
+If we sort the capacities on the remaining \(m=n-2\) vertices increasingly as \(c_1\le \cdots\le c_{n-2}\), this means that the tournament \(T\) has an outdegree sequence bounded above by \(c_i-2\). By the bounded Landau criterion,
+\[
+\sum_{i=1}^k (c_i-2)\ge \binom{k}{2}
+\qquad(1\le k\le n-2).
+\]
+This proves necessity.
+
+Conversely, suppose there exist distinct vertices \(x,y\) with \(d_x,d_y\ge 2\) such that the remaining capacities, sorted increasingly as \(c_1\le \cdots\le c_{n-2}\), satisfy
+\[
+\sum_{i=1}^k (c_i-2)\ge \binom{k}{2}
+\qquad(1\le k\le n-2).
+\]
+Applying the bounded Landau criterion to the upper bounds \(c_i-2\), we obtain a tournament \(T\) on the remaining \(n-2\) vertices whose outdegrees satisfy
+\[
+outdeg_T(v)\le d_v-2
+\]
+for every remaining vertex \(v\). Choose one of those remaining vertices and call it \(z\). Put a triangle class on \(\{x,y,z\}\). For every remaining vertex \(v\neq z\), create a star class centered at \(v\) consisting of the two edges \(vx,vy\) together with all edges \(vw\) such that the tournament edge \(vw\) is oriented out of \(v\). The class centered at \(v\) has size
+\[
+2+\outdeg_T(v)\le d_v,
+\]
+so it respects the capacity bound. The triangle class uses degree \(2\) at each of \(x,y,z\), which is allowed because \(d_x,d_y\ge 2\) and the remaining capacities also satisfy \(c_i\ge 2\).
+
+Every edge of \(K_n\) now appears exactly once: the three edges of \(\{x,y,z\}\) lie in the triangle class; each edge from a star center to \(x\) or \(y\) lies in that center's star; and each edge among the remaining \(n-2\) vertices is assigned exactly once by the tournament orientation. Thus the edges of \(K_n\) are partitioned into one triangle and \(n-3\) stars, i.e. into \(n-2\) intersecting classes satisfying the degree bounds. Therefore \(\Chi_{(d_i)}(K_n)=n-2\).
+\end{proof}
+
+A clean sufficient condition is immediate: if, after removing two vertices, the remaining capacities satisfy \(c_i\ge i+2\) for all \(i\), then \(\Chi_{(d_i)}(K_n)=n-2\).
+
+\subsection{Arithmetic clique links}
+In the actual squarefree setting, petal capacities arise from distinct primes, so each capacity is either \(p\) or \(p-1\). Once any capacity-1 collapse case has been removed, these capacities grow quickly.
+
+\begin{theorem}[arithmetic clique-link theorem]\label{thm:arith-clique}
+Let the petal capacities of a clique link come from distinct primes, each capacity being either \(p_i\) or \(p_i-1\), and assume no petal has capacity \(1\). Then
+\[
+\Chi_{(d_i)}(K_n)=n-2.
+\]
+Consequently, a common-core arithmetic clique link is perfectly packable if and only if
+\[
+D_C\ge n-2.
+\]
+\end{theorem}
+
+\begin{proof}
+After deleting the two smallest petal capacities, the remaining sorted capacities satisfy
+\[
+c_i\ge 2i+2,
+\]
+by the crude lower bound \(p_k\ge 2k-1\) for the \(k\)-th prime. Hence
+\[
+\sum_{i=1}^k(c_i-2)\ge \sum_{i=1}^k 2i = k(k+1)\ge \binom{k}{2},
+\]
+and \cref{thm:nonuniform-strip} applies.
+\end{proof}
+
+This is the first point where the actual arithmetic capacities become easier than the uniform model.
+
+\section{Weighted clique-link optimization}
+We now move beyond perfect packing.
+
+Let
+\[
+w_1\ge w_2\ge \cdots \ge w_n>0
+\]
+be vertex weights, and give each edge \(ij\) of \(K_n\) the weight \(w_iw_j\). Let \(W_t(w)\) be the maximum total weight of a subgraph of \(K_n\) whose edges can be partitioned into at most \(t\) intersecting families.
+
+\subsection{Sub-threshold regime \(0\le t\le n-4\)}
+Let \(F_t(n)\) be the maximum number of edges in a graph on \(n\) vertices that can be partitioned into at most \(t\) intersecting families. Then
+\[
+F_t(n)=
+\begin{cases}
+\binom n2-\binom{n-t}{2},& 0\le t\le n-3,\\[6pt]
+\binom n2,& t\ge n-2.
+\end{cases}
+\]
+Moreover, for \(0\le t\le n-4\), every support-maximizer is exactly the threshold graph obtained by taking all edges incident to some fixed \(t\)-set of vertices.
+
+\begin{lemma}\label{lem:clique-intersecting-star-triangle}
+A pairwise-intersecting family of edges of a complete graph is either a star or a triangle.
+\end{lemma}
+
+\begin{proof}
+Let \(\mathcal F\) be a pairwise-intersecting family of edges in \(K_n\). If \(|\mathcal F|\le 2\), the claim is immediate, so assume \(|\mathcal F|\ge 3\). Choose two distinct edges of \(\mathcal F\), say \(ab\) and \(ac\), sharing the vertex \(a\).
+
+If \(bc\in \mathcal F\), then any other edge of \(\mathcal F\) must intersect each of \(ab\), \(ac\), and \(bc\). In a complete graph the only edges with that property are \(ab\), \(ac\), and \(bc\) themselves. Hence \(\mathcal F=\{ab,ac,bc\}\) is a triangle.
+
+If instead \(bc\notin \mathcal F\), let \(e\in \mathcal F\) be any edge. Because \(e\) intersects both \(ab\) and \(ac\), either \(e\) contains \(a\), or else \(e=bc\). The latter is excluded, so every edge of \(\mathcal F\) contains \(a\). Therefore \(\mathcal F\) is a star centered at \(a\).
+\end{proof}
+
+\begin{proposition}[support extremizers below threshold]\label{prop:threshold-support}
+Let \(0\le t\le n-4\). If a graph \(F\subseteq K_n\) has its edge set partitionable into at most \(t\) intersecting families, then
+\[
+|E(F)|\le \binom n2-\binom{n-t}{2}.
+\]
+Equality holds if and only if
+\[
+E(F)=\{uv:\{u,v\}\cap S\neq\varnothing\}
+\]
+for some \(t\)-set \(S\subseteq [n]\); equivalently, the complement of \(F\) is a clique on the remaining \(n-t\) vertices.
+\end{proposition}
+
+\begin{proof}
+By \cref{lem:clique-intersecting-star-triangle}, every intersecting class is either a star or a triangle. Merge classes with the same star center; this can only reduce the number of classes, so we may write the decomposition as \(s\) stars with distinct centers together with \(q\) triangles, where \(s+q\le t\). Let \(S\) be the set of the \(s\) star centers.
+
+The union of the star classes is contained in the set of all edges incident to \(S\), whose cardinality is
+\[
+|T(S)|=s(n-s)+\binom{s}{2}.
+\]
+Each triangle contributes at most three additional edges, so
+\[
+|E(F)|\le s(n-s)+\binom{s}{2}+3q.
+\]
+Fix \(c=s+q\). Replacing one triangle by one additional star center changes the right-hand side by
+\[
+\bigl((s+1)(n-s-1)+\tbinom{s+1}{2}+3(q-1)\bigr)-\bigl(s(n-s)+\tbinom{s}{2}+3q\bigr)=n-s-4.
+\]
+Because \(s\le c-1\le t-1\le n-5\), this quantity is positive. Hence for fixed \(c\) the edge bound is maximized when \(q=0\) and \(s=c\).
+
+Now set
+\[
+h(c):=c(n-c)+\binom{c}{2}=cn-\frac{c(c+1)}{2}.
+\]
+Then
+\[
+h(c+1)-h(c)=n-c-1>0
+\qquad(c\le t-1\le n-5),
+\]
+so \(h(c)\) is strictly increasing on \(0\le c\le t\). Therefore
+\[
+|E(F)|\le h(t)=t(n-t)+\binom{t}{2}=\binom n2-\binom{n-t}{2}.
+\]
+This proves the extremal edge count.
+
+If equality holds, then all the inequalities above are equalities. In particular, \(q=0\), \(s=t\), and the union of the star classes must be all edges incident to \(S\). Thus \(F\) is exactly the threshold graph with center set \(S\). Conversely, every such threshold graph is the union of the \(t\) stars centered at the vertices of \(S\), so equality is attained.
+\end{proof}
+
+\begin{theorem}[weighted threshold theorem]\label{thm:weighted-threshold}
+For every \(0\le t\le n-4\),
+\[
+W_t(w)=
+\sum_{1\le i<j\le n} w_iw_j
+-
+\sum_{t<i<j\le n} w_iw_j.
+\]
+Equivalently, the weighted optimum is obtained by taking all edges incident to the \(t\) heaviest vertices.
+\end{theorem}
+
+\begin{proof}
+Let
+\[
+M:=\binom n2-\binom{n-t}{2}.
+\]
+By \cref{prop:threshold-support}, every feasible support has at most \(M\) edges, and the supports of size \(M\) are exactly the threshold graphs
+\[
+T(S):=\{uv:\{u,v\}\cap S\neq\varnothing\},
+\qquad |S|=t.
+\]
+Because every edge weight \(w_iw_j\) is positive, the maximum weight among feasible graphs is attained by a feasible graph with exactly \(M\) edges: if a graph had fewer than \(M\) edges, then among all graphs with at most \(M\) edges one could always increase the total weight by passing to an \(M\)-edge graph of maximal weight.
+
+Hence it suffices to maximize the weight of \(T(S)\) over all \(t\)-subsets \(S\). Write \(T=[n]\setminus S\), so \(|T|=n-t\). The omitted edges are exactly the edges of the clique on \(T\), and therefore
+\[
+\wt(T(S))=\sum_{1\le i<j\le n} w_iw_j-\sum_{\substack{i<j\\ i,j\in T}} w_iw_j.
+\]
+Thus maximizing \(\wt(T(S))\) is equivalent to minimizing the omitted weight
+\[
+\Phi(T):=\sum_{\substack{i<j\\ i,j\in T}} w_iw_j
+\]
+among all \((n-t)\)-subsets \(T\subseteq [n]\).
+
+We claim that \(\Phi(T)\) is minimized when \(T=\{t+1,t+2,\dots,n\}\), i.e. when \(T\) consists of the \(n-t\) lightest vertices. Indeed, suppose that \(u\in T\), \(v\notin T\), and \(u<v\). Then \(w_u\ge w_v\). If we replace \(u\) by \(v\), the omitted weight changes by
+\[
+\Phi\bigl((T\setminus\{u\})\cup\{v\}\bigr)-\Phi(T)
+=(w_v-w_u)\sum_{x\in T\setminus\{u\}} w_x\le 0.
+\]
+So every such exchange weakly decreases \(\Phi\). Repeating these exchanges pushes the omitted set down to \(\{t+1,\dots,n\}\), proving that this omitted clique is optimal.
+
+Substituting that choice of omitted set gives
+\[
+W_t(w)=\sum_{1\le i<j\le n} w_iw_j-\sum_{t<i<j\le n} w_iw_j,
+\]
+as claimed.
+\end{proof}
+
+\subsection{Near-threshold regime \(t=n-3\)}
+The first nontrivial near-threshold case has now been closed.
+
+\begin{proposition}[support extremizers at \(t=n-3\)]\label{prop:nm3-support}
+Let \(F\subseteq K_n\) be a graph whose edge set is partitionable into at most \(n-3\) intersecting families. Then
+\[
+|E(F)|\le \binom n2-3.
+\]
+Equality holds if and only if the complement of \(F\) is either
+\begin{enumerate}[label=(\roman*)]
+    \item a triangle, or
+    \item a three-edge star.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+As in the proof of \cref{prop:threshold-support}, write the decomposition of \(F\) as \(s\) stars with distinct centers together with \(q\) triangles, with \(s+q\le n-3\). If \(S\) is the set of star centers, then
+\[
+|E(F)|\le s(n-s)+\binom{s}{2}+3q.
+\]
+For fixed \(c=s+q\), replacing a triangle by an additional star center changes the right-hand side by \(n-s-4\). Hence, for fixed \(c\), the bound is maximized when \(s\) is as large as possible. In particular, the global maximum is attained when \(c=n-3\).
+
+Now impose \(s+q=n-3\). A direct calculation gives
+\[
+\bigl((s+1)(n-s-1)+\tbinom{s+1}{2}+3(q-1)\bigr)-\bigl(s(n-s)+\tbinom{s}{2}+3q\bigr)=n-s-4.
+\]
+This is positive for \(s\le n-5\), and zero when \(s=n-4\). Therefore the maximal value occurs only in the cases
+\[
+(s,q)=(n-3,0)\qquad\text{or}\qquad (s,q)=(n-4,1).
+\]
+In either case the maximal edge count is
+\[
+\binom n2-3.
+\]
+
+If \((s,q)=(n-3,0)\), then the equality case from \cref{prop:threshold-support} shows that \(F\) is the threshold graph with \(n-3\) centers, so the complement is a triangle on the remaining three vertices.
+
+If \((s,q)=(n-4,1)\), let \(S\) be the \(n-4\) star centers. Then the union of the star classes is contained in the set of edges incident to \(S\), which already has cardinality \(\binom n2-6\). To reach the extremal value \(\binom n2-3\), the unique triangle class must contribute three edges disjoint from that set. Hence the triangle must lie entirely on the complement \([n]\setminus S\), which has four vertices. Therefore the complement of \(F\) is exactly the three edges from the remaining fourth vertex to the triangle vertices, i.e. a three-edge star.
+
+Conversely, if the complement is a triangle, then \(F\) is the threshold graph with \(n-3\) centers and is the union of those \(n-3\) stars. If the complement is a three-edge star on vertices \(d\) and \(a,b,c\), then the remaining edges are the union of the triangle \(abc\) and the \(n-4\) stars centered at the other vertices. Thus both types are feasible and attain \(\binom n2-3\) edges.
+\end{proof}
+
+\begin{theorem}[weighted \(t=n-3\) clique theorem]\label{thm:weighted-nm3}
+Let \(n\ge 5\). Then
+\[
+W_{n-3}(w)=
+\sum_{1\le i<j\le n} w_iw_j
+-
+\min(\Delta_\triangle,\Delta_\star),
+\]
+where
+\[
+\Delta_\triangle
+=
+w_{n-2}w_{n-1}+w_{n-2}w_n+w_{n-1}w_n,
+\]
+and
+\[
+\Delta_\star
+=
+w_n\,(w_{n-3}+w_{n-2}+w_{n-1}).
+\]
+Equivalently, the optimizer is exactly one of two shapes:
+\begin{enumerate}[label=(\roman*)]
+    \item omit the triangle on the three lightest vertices \(\{n-2,n-1,n\}\); or
+    \item omit the three-edge star centered at the lightest vertex \(n\) and joined to \(\{n-3,n-2,n-1\}\).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+By \cref{prop:nm3-support}, every feasible graph has at most \(\binom n2-3\) edges, and every support-maximizer is obtained by omitting either a triangle or a three-edge star. Because all edge weights are positive, a weight-maximizer must be a support-maximizer: among all graphs with at most \(\binom n2-3\) edges, the maximum weight is attained by some graph with exactly \(\binom n2-3\) edges.
+
+We therefore minimize the omitted weight over the two extremal support types.
+
+\smallskip
+\noindent\emph{Omitted triangle.}
+If the omitted triangle uses vertices \(a<b<c\), its omitted weight is
+\[
+w_aw_b+w_aw_c+w_bw_c.
+\]
+By the same exchange argument used in the proof of \cref{thm:weighted-threshold}, replacing any omitted vertex by a lighter available vertex cannot increase this quantity. Hence the minimum omitted triangle weight is attained on the three lightest vertices \(\{n-2,n-1,n\}\), and the minimum value is \(\Delta_\triangle\).
+
+\smallskip
+\noindent\emph{Omitted three-edge star.}
+Suppose the omitted star has center \(c\) and leaves \(\ell_1,\ell_2,\ell_3\). Its omitted weight is
+\[
+w_c(w_{\ell_1}+w_{\ell_2}+w_{\ell_3}).
+\]
+For fixed center \(c\), this is minimized by choosing the three lightest possible leaves distinct from \(c\). Once the leaves are chosen, the expression is minimized by taking the center to be the lightest possible vertex, namely \(c=n\). Thus the minimum omitted star weight is attained by the star centered at \(n\) with leaves \(n-3,n-2,n-1\), and its value is \(\Delta_\star\).
+
+The feasible supports of maximum size are exactly these two types, so the maximum retained weight is the total clique weight minus the smaller of the two minimum omitted weights. This gives
+\[
+W_{n-3}(w)=\sum_{1\le i<j\le n} w_iw_j-\min(\Delta_\triangle,\Delta_\star),
+\]
+which is the claimed formula.
+\end{proof}
+
+Together, \cref{thm:weighted-threshold,thm:weighted-nm3} and the packability threshold \(t\ge n-2\) now close weighted clique-link optimization in three regimes:
+\begin{enumerate}[label=(\roman*)]
+    \item \(0\le t\le n-4\): threshold graph;
+    \item \(t=n-3\): minimum of one omitted triangle and one omitted star;
+    \item \(t\ge n-2\): full clique.
+\end{enumerate}
+
+\subsection{Arithmetic realization}
+In the arithmetic squarefree setting, with vertex weights
+\[
+w_i=\frac1{p_i},
+\]
+and actual prime-based clique-link capacities, the constructions above are realizable in the corresponding arithmetic regimes. In particular, the sub-threshold theorem is realizable for the broad range
+\[
+0\le t\le \min\!\left(n-4,\left\lfloor\frac{n+1}{2}\right\rfloor\right),
+\]
+and the \(t=n-3\) theorem gives the exact arithmetic formula
+\[
+W_{n-3}=
+\sum_{i<j}\frac1{p_ip_j}
+-
+\min\!\left(
+\frac1{p_{n-2}p_{n-1}}+\frac1{p_{n-2}p_n}+\frac1{p_{n-1}p_n},
+\;
+\frac1{p_n}\left(\frac1{p_{n-3}}+\frac1{p_{n-2}}+\frac1{p_{n-1}}\right)
+\right).
+\]
+This materially strengthens the arithmetic clique-link side of \#278.
+
+\section{Weighted sparse and bipartite graph-link theorems}
+The weighted theory now extends beyond cliques.
+
+\subsection{Triangle-free full-capacity reduction}
+Let \(G\) be a triangle-free graph with positive vertex weights \(w_v\), and give edge \(uv\) weight \(w_uw_v\). Suppose every residual petal capacity dominates degree:
+\[
+d_v\ge \deg_G(v)\qquad(\forall v).
+\]
+Let \(M_t(G;w)\) be the maximum total edge weight of a subgraph \(F\subseteq E(G)\) whose edges can be partitioned into at most \(t\) intersecting families.
+
+\begin{theorem}[triangle-free full-capacity reduction]\label{thm:trianglefree-coverage}
+Under the hypotheses above,
+\[
+M_t(G;w)=
+\max_{S\subseteq V(G),\,|S|\le t}
+\sum_{\substack{uv\in E(G)\\ \{u,v\}\cap S\neq\varnothing}} w_uw_v.
+\]
+\end{theorem}
+
+\begin{proof}
+We first show that every intersecting family of edges in a triangle-free graph is a star. Let \(\mathcal F\) be such a family. Choose two edges \(uv\) and \(uw\) in \(\mathcal F\) sharing the vertex \(u\). Because the graph is triangle-free, the edge \(vw\) is absent. If \(e\in\mathcal F\) intersects both \(uv\) and \(uw\), then \(e\) must contain \(u\): otherwise it would have to be \(vw\). Therefore every edge of \(\mathcal F\) is incident to \(u\), so \(\mathcal F\) is a star.
+
+Now let \(F\subseteq E(G)\) be feasible, and partition \(E(F)\) into at most \(t\) intersecting families. By the first paragraph, these families are stars. If two stars have the same center, merge them; the merged class is still a star. Thus we may assume that the decomposition uses a set \(S\subseteq V(G)\) of pairwise distinct centers with \(|S|\le t\).
+
+Because \(d_v\ge \deg_G(v)\) for every vertex \(v\), a star centered at \(v\) may contain all edges of \(G\) incident to \(v\). Since all edge weights are positive, for a fixed center set \(S\) the optimum is therefore obtained by taking every edge incident to at least one vertex of \(S\). This produces the subgraph
+\[
+E_S:=\{uv\in E(G): \{u,v\}\cap S\neq\varnothing\},
+\]
+with total weight
+\[
+\sum_{\substack{uv\in E(G)\\ \{u,v\}\cap S\neq\varnothing}} w_uw_v.
+\]
+Conversely, for every \(S\subseteq V(G)\) with \(|S|\le t\), the edge set \(E_S\) is feasible: assign one full star to each vertex of \(S\). Taking the maximum over \(S\) gives exactly the stated formula.
+\end{proof}
+
+This is the first exact weighted reduction for a broad sparse family that is not clique-based.
+
+\subsection{Full-capacity complete bipartite links}
+Let \(K_{a,b}\) have left weights
+\[
+x_1\ge \cdots \ge x_a>0
+\]
+and right weights
+\[
+y_1\ge \cdots \ge y_b>0.
+\]
+Assume full opposite-side capacity on every vertex, and write
+\[
+X_r=\sum_{i\le r}x_i,
+\qquad
+Y_s=\sum_{j\le s}y_j.
+\]
+
+\begin{theorem}[full-capacity weighted \(K_{a,b}\)]\label{thm:full-bip}
+The exact weighted optimum using at most \(t\) intersecting families is
+\[
+M_t(K_{a,b})=
+\max_{r+s\le t}
+\Big(
+X_r\,Y_b+(X_a-X_r)\,Y_s
+\Big).
+\]
+Equivalently,
+\[
+M_t(K_{a,b})=X_aY_b-\min_{r+s\le t}(X_a-X_r)(Y_b-Y_s).
+\]
+\end{theorem}
+
+\begin{proof}
+Apply \cref{thm:trianglefree-coverage} to the triangle-free graph \(K_{a,b}\). A feasible support is therefore determined by a choice of at most \(t\) star centers. Suppose \(r\) of those centers lie on the left and \(s\) lie on the right, with \(r+s\le t\). Let \(I\subseteq [a]\) and \(J\subseteq [b]\) be the chosen left and right center sets, so \(|I|=r\) and \(|J|=s\).
+
+The covered edges are exactly the edges incident to one of the chosen centers. Their total weight is
+\[
+\sum_{i\in I}\sum_{j=1}^b x_i y_j+\sum_{i\notin I}\sum_{j\in J} x_i y_j
+=\Bigl(\sum_{i\in I}x_i\Bigr)Y_b+\Bigl(X_a-\sum_{i\in I}x_i\Bigr)\Bigl(\sum_{j\in J}y_j\Bigr).
+\]
+For fixed \(r\) and \(s\), this expression is increasing in \(\sum_{i\in I}x_i\) and in \(\sum_{j\in J}y_j\). Hence it is maximized by taking \(I=\{1,\dots,r\}\) and \(J=\{1,\dots,s\}\), i.e. by choosing the \(r\) heaviest left vertices and the \(s\) heaviest right vertices. The resulting value is
+\[
+X_rY_b+(X_a-X_r)Y_s.
+\]
+Finally, maximize over all \(r,s\) with \(r+s\le t\). This gives the first displayed formula, and the second is obtained by subtracting the omitted rectangle \((X_a-X_r)(Y_b-Y_s)\) from the total weight \(X_aY_b\).
+\end{proof}
+
+\subsection{One-sided-full complete bipartite links}
+Now assume every left vertex has full row capacity, while the right vertex \(j\) has per-star capacity \(\beta_j\). Let
+\[
+X_r:=\sum_{i\le r}x_i,
+\qquad Y:=\sum_{j=1}^b y_j,
+\]
+and for integers \(n_j\ge 0\) put
+\[
+m_j:=\min(a-r,\ n_j\beta_j).
+\]
+
+\begin{theorem}[one-sided-full weighted \(K_{a,b}\)]\label{thm:onesided-bip}
+With the notation above,
+\[
+M_t=
+\max_{\,r+\sum_j n_j\le t}
+\left(
+Y\,X_r+\sum_{j=1}^b y_j\bigl(X_{r+m_j}-X_r\bigr)
+\right).
+\]
+\end{theorem}
+
+\begin{proof}
+Because \(K_{a,b}\) is triangle-free, every intersecting class is a star. Fix a feasible decomposition using at most \(t\) colors. Let \(r\) be the number of left-centered stars, and let \(n_j\) be the number of right-centered stars at the right vertex \(j\). Then
+\[
+r+\sum_{j=1}^b n_j\le t.
+\]
+
+A left-centered star has full row capacity, so if a left vertex is chosen as a center, then in an optimal solution all of its incident edges are present. Let \(I\subseteq [a]\) be the set of chosen left centers, with \(|I|=r\). The contribution of those full rows is
+\[
+\Bigl(\sum_{i\in I}x_i\Bigr)Y.
+\]
+Among all \(r\)-subsets \(I\), this is maximized by taking the \(r\) heaviest rows, because the remaining contribution from the right side is always nonnegative. Thus some optimum has \(I=\{1,\dots,r\}\), and its row contribution is \(YX_r\).
+
+Now fix such an \(r\). For a right vertex \(j\), after the first \(r\) rows have been fully covered, the uncovered incident edges in column \(j\) have weights
+\[
+y_jx_{r+1},\ y_jx_{r+2},\ \dots,\ y_jx_a.
+\]
+Each right-centered star at \(j\) may contain at most \(\beta_j\) of those uncovered edges. Since all weights are positive, the best use of \(n_j\) right colors at column \(j\) is to take the \(m_j:=\min(a-r,n_j\beta_j)\) heaviest remaining edges in that column. Their total weight is
+\[
+y_j(x_{r+1}+\cdots+x_{r+m_j})=y_j(X_{r+m_j}-X_r).
+\]
+The columns are independent once the full rows are fixed, because edges in different columns are distinct. Therefore, for fixed \(r\) and \((n_j)\), the optimal total weight is
+\[
+YX_r+\sum_{j=1}^b y_j(X_{r+m_j}-X_r).
+\]
+Finally, maximize over all nonnegative integers \(r,n_1,\dots,n_b\) satisfying \(r+\sum_j n_j\le t\). This yields the stated formula.
+\end{proof}
+
+\subsection{Arbitrary bipartite links with one full side}
+The strongest current weighted theorem beyond cliques is the following generalization.
+
+Let \(G=(L,R,E)\) be bipartite. Assume the left side is full-capacity:
+\[
+d_u\ge \deg_G(u)\qquad(u\in L),
+\]
+while each right vertex \(v\in R\) has star-capacity \(\beta_v\). Give each edge \(uv\) a positive weight \(w_{uv}\). Let \(M_t(G)\) be the maximum total weight of a subgraph of \(G\) that can be partitioned into at most \(t\) intersecting families.
+
+For \(S\subseteq L\), define
+\[
+W_L(S):=\sum_{\substack{uv\in E\\ u\in S}} w_{uv}.
+\]
+For each \(v\in R\), sort the uncovered incident edge-weights from \(L\setminus S\) as
+\[
+a_{v,1}(S)\ge a_{v,2}(S)\ge \cdots \ge a_{v,m_v(S)}(S),
+\]
+and define the \(r\)-th right-star block gain by
+\[
+B_{v,r}(S):=
+\sum_{\ell=(r-1)\beta_v+1}^{\min(r\beta_v,m_v(S))} a_{v,\ell}(S).
+\]
+Let
+\[
+\lambda_1(S)\ge \lambda_2(S)\ge \cdots
+\]
+be the global decreasing rearrangement of all the block gains \(B_{v,r}(S)\).
+
+\begin{theorem}[bipartite one-full-side block-gain theorem]\label{thm:block-gain}
+Under the hypotheses above,
+\[
+M_t(G)=
+\max_{S\subseteq L,\ |S|\le t}
+\left(
+W_L(S)+\sum_{k=1}^{t-|S|}\lambda_k(S)
+\right).
+\]
+\end{theorem}
+
+\begin{proof}
+Since \(G\) is bipartite, it is triangle-free, so every intersecting family of edges is a star. Consider an optimal feasible decomposition using at most \(t\) colors.
+
+First merge all left-centered stars with the same center: because the left side is full-capacity, a left center \(u\in L\) can support all of its incident edges simultaneously. Hence in some optimum each left vertex is either not used as a center, or used once as a full star. Let \(S\subseteq L\) be the set of those left centers. Their contribution is exactly
+\[
+W_L(S)=\sum_{\substack{uv\in E\\ u\in S}} w_{uv}.
+\]
+
+Fix \(S\). Delete all edges already covered by the full stars centered in \(S\). At a right vertex \(v\in R\), list the weights of the remaining incident edges in weakly decreasing order:
+\[
+a_{v,1}(S)\ge a_{v,2}(S)\ge \cdots \ge a_{v,m_v(S)}(S).
+\]
+A single right-centered star at \(v\) can contain at most \(\beta_v\) of these edges, so with one color the best gain at \(v\) is
+\[
+B_{v,1}(S)=\sum_{\ell=1}^{\min(\beta_v,m_v(S))} a_{v,\ell}(S).
+\]
+If we use two colors at \(v\), the second one adds the next \(\beta_v\)-block,
+\[
+B_{v,2}(S)=\sum_{\ell=\beta_v+1}^{\min(2\beta_v,m_v(S))} a_{v,\ell}(S),
+\]
+and in general the \(r\)-th color at \(v\) adds the block gain \(B_{v,r}(S)\). Because the sequence \(a_{v,\ell}(S)\) is nonincreasing, the block gains at each fixed \(v\) are themselves nonincreasing.
+
+Therefore, once \(S\) is fixed, every feasible choice of the remaining \(t-|S|\) colors is equivalent to choosing, for each \(v\in R\), an initial segment of the block gains
+\[
+B_{v,1}(S),B_{v,2}(S),\dots.
+\]
+The total extra weight is the sum of the selected block gains. Since each block gain is nonnegative and the gains at each vertex are already arranged in decreasing order, the optimal use of the remaining \(t-|S|\) colors is simply to take the \(t-|S|\) largest gains from the global multiset of all block gains. By definition those are
+\[
+\lambda_1(S)\ge \lambda_2(S)\ge \cdots.
+\]
+Thus, for fixed \(S\), the optimal total weight is
+\[
+W_L(S)+\sum_{k=1}^{t-|S|} \lambda_k(S).
+\]
+Finally, maximize over all \(S\subseteq L\) with \(|S|\le t\). This gives the stated formula.
+\end{proof}
+
+This theorem is the present conceptual bridge from exact packability to exact weighted optimization on sparse graph links.
+
+
+
+\section{Star--triangle normal form and exact algorithmic solvability}
+The weighted results above suggest a more general description of \(\Chi_{(d_v)}(F)\) for an arbitrary simple graph \(F\). This section records the part of that description that is now stable enough to include in the paper.
+
+\subsection{Star--triangle normal form}
+For a graph \(F\) with vertex capacities \((d_v)_{v\in V(F)}\), write \(\Chi_{(d_v)}(F)\) for the minimum number of colors needed to partition \(E(F)\) into pairwise-intersecting classes whose degree at each vertex \(v\) is at most \(d_v\). Call a triangle of \(F\) \emph{\(d\)-admissible} if all three of its vertices have capacity at least \(2\).
+
+\begin{theorem}[star--triangle normal form]\label{thm:star-triangle}
+Let \(F\) be a simple graph with vertex capacities \((d_v)\). Then
+\[
+\Chi_{(d_v)}(F)
+=
+\min_{\mathcal T,\,\vec H}
+\left(
+|\mathcal T|+\sum_{v\in V(F)} \left\lceil \frac{m_v}{d_v}\right\rceil
+\right),
+\]
+where:
+\begin{enumerate}[label=(\roman*)]
+    \item \(\mathcal T\) ranges over sets of edge-disjoint \(d\)-admissible triangles of \(F\);
+    \item \(H:=F\setminus \bigcup_{T\in\mathcal T} E(T)\);
+    \item \(\vec H\) ranges over orientations of \(H\);
+    \item \(m_v\) is the indegree of \(v\) in \(\vec H\).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Every color class in a feasible decomposition of \(E(F)\) is a pairwise-intersecting family of edges. In a simple graph such a family is either a star or a triangle: if three pairwise-intersecting edges do not all share one vertex, then they form the three edges of a triangle, and any further edge meeting all three is impossible.
+
+Take an optimal decomposition. Its triangle classes are necessarily edge-disjoint, and each of them is \(d\)-admissible because a triangle color uses degree \(2\) at each of its three vertices. Let \(\mathcal T\) be the set of those triangle classes, and delete their edges. Every remaining color class is a star. For each remaining edge \(uv\), orient it toward the center of its star class. If \(m_v\) edges are oriented into a vertex \(v\), then those edges are partitioned into stars centered at \(v\), each using at most \(d_v\) edges. Hence the number of star colors centered at \(v\) is at least \(\lceil m_v/d_v\rceil\). Summing over vertices gives
+\[
+\Chi_{(d_v)}(F)\ge |\mathcal T|+\sum_v \left\lceil \frac{m_v}{d_v}\right\rceil.
+\]
+
+Conversely, fix a set \(\mathcal T\) of edge-disjoint \(d\)-admissible triangles and an orientation \(\vec H\) of the remaining graph \(H\). Use one color for each triangle in \(\mathcal T\). For each vertex \(v\), packet the \(m_v\) incoming edges of \(\vec H\) into \(\lceil m_v/d_v\rceil\) groups of size at most \(d_v\), and color each group as a star centered at \(v\). These colors are pairwise-intersecting and respect the degree bounds. Every edge of \(F\) is colored exactly once, so
+\[
+\Chi_{(d_v)}(F)\le |\mathcal T|+\sum_v \left\lceil \frac{m_v}{d_v}\right\rceil.
+\]
+Taking the minimum over \((\mathcal T,\vec H)\) gives the claimed identity.
+\end{proof}
+
+\begin{corollary}[triangle-free orientation formula]\label{cor:trianglefree-orientation}
+If \(F\) is triangle-free, then
+\[
+\Chi_{(d_v)}(F)=\min_{\vec F}\sum_{v\in V(F)} \left\lceil \frac{m_v}{d_v}\right\rceil,
+\]
+where \(\vec F\) ranges over orientations of \(F\) and \(m_v\) denotes indegree.
+\end{corollary}
+
+\begin{proof}
+There are no triangles to select in \cref{thm:star-triangle}, so the minimum is taken only over orientations.
+\end{proof}
+
+Theorem~\ref{thm:trianglefree-coverage} is the full-capacity specialization of \cref{cor:trianglefree-orientation}: when \(d_v\ge \deg_F(v)\) for every vertex, each chosen center may absorb all selected incident edges at once.
+
+\subsection{Exact weighted tree links}
+For a weighted graph \(G\) with capacities \((d_v)\), write
+\[
+M_t(G):=\max\left\{\sum_{e\in E(F)} w_e : F\subseteq G,\ \Chi_{(d_v)}(F)\le t\right\}.
+\]
+
+\begin{theorem}[exact weighted tree-link dynamic program]\label{thm:tree-dp}
+Let \(T\) be a tree with positive edge weights \((w_e)\) and vertex capacities \((d_v)\). Then, for every budget \(t\), the value \(M_t(T)\) is exactly computable by dynamic programming on a rooted tree.
+\end{theorem}
+
+\begin{proof}
+Root \(T\) at a vertex \(r\). By \cref{cor:trianglefree-orientation}, a feasible solution is exactly a choice of a subgraph together with an orientation of its selected edges; its cost is the sum over vertices of \(\lceil m_v/d_v\rceil\), where \(m_v\) is indegree.
+
+For each vertex \(u\), let \(T_u\) be the rooted subtree below \(u\). While combining the children of \(u\), the only information that can couple different child-subtrees is:
+\begin{enumerate}[label=(\roman*)]
+    \item the status of the parent edge of \(u\) (absent, oriented out of \(u\), or oriented into \(u\));
+    \item the number \(m\) of selected child-edges oriented into \(u\);
+    \item the budget already spent inside the processed descendants of \(u\).
+\end{enumerate}
+Each child contributes one of the three possible statuses of its connecting edge together with a budget/weight pair coming from its own subtree table. Because distinct child-subtrees are edge-disjoint, these contributions combine by ordinary convolution over \((m,b)\). After all children of \(u\) have been processed, the local contribution of \(u\) itself is determined exactly: it is
+\[
+\left\lceil \frac{m+\mathbf 1_{\text{parent edge oriented into }u}}{d_u}\right\rceil.
+\]
+Thus one obtains, for every \(u\), a finite table of optimal weights indexed by parent-edge status and budget. Leaves provide the base cases, and the root has no parent edge. Reading off the best root state with budget at most \(t\) yields \(M_t(T)\) exactly.
+\end{proof}
+
+\subsection{Exact weighted graph links of fixed treewidth}
+The same principle extends from rooted trees to bounded-treewidth graph links.
+
+\begin{theorem}[exact weighted fixed-treewidth dynamic program]\label{thm:treewidth-dp}
+Fix \(k\ge 0\). Let \(G\) be a graph of treewidth at most \(k\), equipped with positive edge weights and vertex capacities \((d_v)\). Then, for every budget \(t\), the value \(M_t(G)\) is exactly computable by dynamic programming on a nice tree decomposition of width \(k\).
+\end{theorem}
+
+\begin{proof}
+Take a nice tree decomposition \((B_x)_x\) of width \(k\). For each bag node \(x\), let \(G_x\) be the part of the graph already processed below \(x\). A partial solution on \(G_x\) communicates with the rest of the graph only through the current bag \(B_x\). The needed interface data are finite:
+\begin{enumerate}[label=(\roman*)]
+    \item the budget already used;
+    \item for each \(v\in B_x\), the number of already-selected nontriangle edges of \(G_x\) that are oriented into \(v\) from the processed side;
+    \item for each edge with both ends in \(B_x\), whether it is absent, selected and oriented, or assigned to a triangle color contained in the bag structure;
+    \item the local consistency data ensuring that no edge is used by two different triangle colors.
+\end{enumerate}
+Because every clique of a graph is contained in some bag of every tree decomposition, every triangle of \(G\) is seen wholly inside some bag. Hence triangle colors require only bag-local bookkeeping; no unbounded global memory is needed for them. Since \(|B_x|\le k+1\), the number of possible local edge/triangle patterns in a bag is finite, and the indegree counters are bounded by the degrees of the bag vertices in \(G\).
+
+The introduce-vertex, introduce-edge, forget-vertex, and join transitions are then standard. At a forget step for a vertex \(v\), all selected edges of the processed graph incident to \(v\) are known, so one can close out the exact local cost contributed by \(v\). At a join step, the two child states are combined by adding their already-spent budgets, reconciling the common bag pattern, and summing the indegree counters on the separator vertices. The root bag has empty interface, so its optimum value is exactly \(M_t(G)\).
+\end{proof}
+
+\begin{remark}
+The proof of \cref{thm:treewidth-dp} is presently included at the level of an exact dynamic-programming schema rather than a fully unrolled transition table. For the purposes of the current working draft, the key point is that the separator data are finite, exact, and local to the bag.
+\end{remark}
+
+Theorem~\ref{thm:treewidth-dp} is best viewed as an exact separator-signature principle: once a separator bag is fixed, every processed component interacts with the rest of the graph only through open indegree counts and local triangle usage on that separator.
+
+
+\section{Consequences for \#278, \#202, and \#1190}
+The results above now give several exact structural families for \#278.
+
+\begin{enumerate}[label=(\arabic*)]
+    \item Exact perfect-packing maxima for all common-core graph links with \(\Chi_d(G)\le D_C\).
+    \item Exact thresholds for complete bipartite graph links and complete graph links on the packability side.
+    \item Exact arithmetic clique-link threshold \(D_C\ge n-2\).
+    \item Exact weighted arithmetic clique-link formulas in all currently covered regimes:
+    \(0\le t\le n-4\), \(t=n-3\), and \(t\ge n-2\).
+    \item Exact weighted formulas for triangle-free and bipartite one-full-side families, including arithmetic realizations when the edge weights come from reciprocal prime products.
+    \item Exact weighted dynamic programs for tree links and, more generally, for graph-link families of fixed treewidth via \cref{thm:star-triangle,thm:treewidth-dp}.
+\end{enumerate}
+
+For \#202 and \#1190, these become explicit finite families of pairwise disjoint or optimally near-disjoint congruence systems with exact reciprocal-mass formulas, together with exact optimization algorithms on several broad sparse graph-link classes. They do not solve the global asymptotic optimization problems on the public problem pages, but they provide a coherent local theory that is directly relevant to them.
+
+\section{Lean formalization status and roadmap}
+The current Lean4 project now goes materially beyond the finite core theory. In the present repository, the formalized material includes:
+\begin{enumerate}[label=(\arabic*)]
+    \item the product-space cylinder model, the cylinder-disjointness criterion, and perfect packing as an intersection-separating assignment of local patterns;
+    \item the pair-support theorem;
+    \item the common-core theorem, in the explicit form with a core/link disjointness hypothesis, together with the finite-color reformulation obtained by counting core patterns;
+    \item the graph-link restatement of the pair-support and common-core results, the abstract color-count predicate \texttt{ChiPackLinkLe}, and the least-color graph-link invariant \texttt{chiPackLink};
+    \item graph-link stars, including exact perfect-packability and \(k\)-color criteria and the derived minimal-color invariant for stars;
+    \item complete bipartite graph-link definitions, the singleton-side reductions to stars, and the structural theorem that every packable color class in a complete bipartite link is empty or lies in a single left or right star;
+    \item the exact complete bipartite formula in the small-side regime
+    \[
+    \Chi_d(K_{a,b})=a\left\lfloor \frac{b}{d}\right\rfloor+\min(a,b\bmod d)
+    \qquad(a\le b,\ a<d).
+    \]
+\end{enumerate}
+
+The codebase has already been reorganized substantially into modules reflecting this progression, including \texttt{BasicDefs}, \texttt{PerfectPacking}, \texttt{PairSupports}, \texttt{CommonCore}, \texttt{Stars}, \texttt{StarColoring}, and the graph-link modules \texttt{GraphLinks/Basic}, \texttt{GraphLinks/Stars}, \texttt{GraphLinks/Chi}, \texttt{GraphLinks/ChiStars}, \texttt{GraphLinks/BipartiteBasic}, \texttt{GraphLinks/BipartiteIntersecting}, \texttt{GraphLinks/BipartiteStars}, \texttt{GraphLinks/BipartitePack}, \texttt{GraphLinks/BipartiteUpperHelpers}, and \texttt{GraphLinks/BipartiteExactSmallSide}.
+
+The main formalization priorities after the current state are now:
+\begin{enumerate}[label=(\arabic*)]
+    \item formalize the remaining complete-bipartite packability regime \(a\ge d\), so that the full theorem of \S\,5.2 is Lean-checked rather than only its small-side case;
+    \item formalize the clique-link packability theorems, both uniform and nonuniform, together with the arithmetic clique-link corollary;
+    \item formalize the weighted clique theorems \cref{thm:weighted-threshold,thm:weighted-nm3};
+    \item formalize the triangle-free reduction \cref{thm:trianglefree-coverage} and the one-full-side bipartite block-gain theorem \cref{thm:block-gain};
+    \item use \cref{thm:star-triangle} as the entry point for later formalization of the tree and bounded-treewidth dynamic programs.
+\end{enumerate}
+
+The bounded-capacity weighted \(K_{a,b}\) problem on both sides remains the clearest next live mathematical frontier after this paper-level consolidation. Dense parameterized extensions such as bounded feedback-vertex-set, bounded vertex cover, or bounded twin-cover remain promising, but they are not yet stabilized enough to be promoted to theorem status in the present draft.
+
+\section{Dead ends and corrections}
+The following ideas were explored and then retired or demoted.
+
+\begin{enumerate}[label=(\arabic*)]
+    \item A universal closed formula for all of \#278. Current evidence strongly suggests the problem is too structurally diverse for this.
+    \item A sunflower-capacity characterization of perfect packing. This was killed by the binary \(\{0\}*K_4\) counterexample.
+    \item A geometric ``straight bar'' or Ferrers-prefix picture as the whole story for bipartite weighted optimization. This is false in naive form; one needs the correct star/block viewpoint, and even fully bounded bipartite optimization is subtler.
+    \item Pure-volume formulas for clique links. The Kneser lower bound \(n-2\) is a genuine obstruction and must remain in the formulas.
+    \item Treating clique links as if they were the whole problem. They are now a highly understood structured family, but the real weighted frontier has already moved further into sparse and bipartite graph-link geometry.
+\end{enumerate}
+
+\section{Open problems}
+The current frontier is no longer about perfect packing for clique links. That part is essentially closed in the arithmetic regime.
+
+The most natural next targets are now:
+\begin{enumerate}[label=(\arabic*)]
+    \item weighted complete bipartite links with bounded capacities on both sides;
+    \item weighted arbitrary bipartite links with bounded capacities on both sides, under additional structure;
+    \item sharper exact algorithms beyond fixed treewidth, especially for sparse modulators and separator-based classes;
+    \item dense parameterized extensions such as bounded twin-cover, once their interface theory is fully stabilized.
+\end{enumerate}
+
+These look like the most plausible bridges from the present finite theory to broader pieces of the true maximum side of \#278.
+
+\section*{References}
+\begin{enumerate}[label={[{\arabic*}]}]
+    \item Erd\H{o}s Problem \#278, \emph{Maximum density of congruence covers}. \url{https://www.erdosproblems.com/278}
+    \item Erd\H{o}s Problem \#202, \emph{How many pairwise disjoint congruence classes}. \url{https://www.erdosproblems.com/202}
+    \item Erd\H{o}s Problem \#1190, \emph{Maximal reciprocal mass of disjoint congruence systems}. \url{https://www.erdosproblems.com/1190}
+    \item H. G. Landau, ``On dominance relations and the structure of animal societies: III The condition for a score structure,'' \emph{Bull. Math. Biophys.} 15 (1953), 143--148.
+    \item L. Lov\'asz, ``Kneser's conjecture, chromatic number, and homotopy,'' \emph{J. Combin. Theory Ser. A} 25 (1978), 319--324.
+\end{enumerate}
+
+\end{document}

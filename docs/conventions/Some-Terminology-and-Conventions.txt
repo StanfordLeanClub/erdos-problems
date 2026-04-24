@@ -1,0 +1,51 @@
+- a "hit" / "attack" = an attempt to push the frontier forward by identifying and thoroughly investigating the current most promising approach, which may or may not be followed by a report of what was found and what the next best attack is. 
+
+- a "combo" = multiple hits in a row; instead of reporting back after a hit, whatever would have been reported as the next best attack is immediately followed up on as the current most promising approach. e.g., 2-hit combo is: think hard on current best attack -> prove stuff -> now there's a next best attack -> think hard on current best attack -> prove stuff -> report back, a 3-hit combo is: think hard on current best attack -> prove stuff -> now there's a next best attack -> think hard on current best attack -> prove stuff -> now there's a next best attack -> think hard on current best attack -> prove stuff -> report back, etc. 
+
+- an "n-combo" = an n-hit combo; 2-combo = 2-hit combo, 3-combo = 3-hit combo, etc. 
+
+- CONVENTION: the depth and quality of each hit should be prioritized. i.e., don't worry about overall combo time; in general, I'd rather have full combos take longer with deep and meaningful hits than quick combos with shallow hits.
+
+- a "step-back" / "step back" (taking a step back) = considering all that's been done thus far and seeing 1) if the current results can be consolidated or generalized, 2) if there are more promising threads for the current approaches for the current, and 3) if there's a more promising approach that those currently in consideration. This is done to re-center us and keep the big picture of what we ultimately need to show in mind so that we (hopefully) avoid proving a bunch of lemmas in an increasingly narrow direction that might be a dead end. 
+
+- a "frontier note" / latest "state of the frontier document" = document written in latex (or markdown) including everything proven thus far + path of discovery + citations, made such that a fresh and skeptical context of you (or anything sufficiently capable reasoner) can start from the statement of the relevant Erdos problem and/or its webpage on https://www.erdosproblems.com/ and follow the document's arguments all the way to where we are currently. Additionally, you should also produce a frontier visualizer update YAML file which summarizes the latest frontier notes info in a way that can be used for the visualization dashboard. An example of the format these notes should follow is provided below.
+
+frontier_version: v4
+date: 2026-04-17
+
+ultimate_problem:
+  name: Erdős #278
+  goal: maximum density of congruence covers
+
+operational_goal:
+  current_form: compute/support packability through chi_pack and chi_(d_v)(G)
+
+central_abstractions:
+  - squarefree product-space cylinder model
+  - perfect packing
+  - intersection-separating coloring
+  - common-core theorem
+  - graph-link invariant chi_(d_v)(G)
+
+proved_families:
+  - stars
+  - complete bipartite links, uniform d
+  - complete graph links d=2
+  - complete graph links d=3
+  - complete graph links d=4
+  - complete graph links d>=n-1
+
+conjectures:
+  - name: complete graph max formula
+    statement: chi_d(K_n)=max(ceil(binomial(n,2)/d), n-2) for d>=3
+    status: open
+    next_case: d=5
+
+killed_or_demoted:
+  - universal #278 maximum formula
+  - sunflower-capacity characterization
+  - volume-only K_ab formula
+  - volume-only K_n formula
+
+best_next_target:
+  - prove/refute chi_5(K_n)
