@@ -28,6 +28,7 @@ Each problem folder is intended to contain:
 - `formalization/` — Lean sources and a map from mathematical statements to files
 - `references/` — public links and lightweight reference material
 - `corrections/` — correction notices for meaningful changes in the mathematical framing
+- `certificates/` — finite verification artifacts and checker outputs supporting specific proof steps not yet Lean-formalized
 
 ## Recommended update philosophy
 

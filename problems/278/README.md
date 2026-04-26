@@ -55,6 +55,7 @@ As of v12, the project has post-v10 full-union results: a full-capacity one-laye
 - Current visualizer YAML: `frontier/current/frontier_visualizer.yaml`
 - Correction notice: `corrections/v10_correction_notice.md`
 - Lean formalization: `formalization/lean/`
+- Certificates: `certificates/`
 
 ## Lean formalization status
 
@@ -73,13 +74,21 @@ Current Lean coverage includes:
 
 See `formalization/README.md` for the module map and roadmap.
 
+## Certificates
+
+The `certificates/` directory contains finite verification artifacts that support specific proof steps in the current frontier.
+
+The current certificate is the residual-core certificate for the corrected full-union \(K_n,t=n-4\) program. It verifies the finite residual cases that remain after reducing the problem to residual cores of size \(r\le 7\).
+
+This certificate is relevant because the \(K_n,t=n-4\) theorem is not currently Lean-formalized and should remain marked as certificate-backed / proof-writing-needed until the finite table is packaged as either a human-checkable proof or a stronger executable checker.
+
 ## Current best mathematical targets
 
-1. Develop the true layer-union theory \(U_d(H)\).
-2. Prove or refute optimality of proper local labeling in the full-capacity one-layer regime.
-3. Write the corrected nonuniform clique-link criterion carefully.
-4. Finish the remaining complete-bipartite packability formalization.
-5. Formalize the star–triangle normal form for the packable-color invariant \(\chi_d(F)\).
+1. Turn the residual-core certificate for \(K_n,t=n-4\) into a polished proof.
+2. Decide whether the residual table should remain as a certificate, become an executable checker, or be translated into a human-checkable finite case proof.
+3. Extend the corrected full-union layer method beyond the clique cases \(t=n-3\) and certificate-backed \(t=n-4\).
+4. Keep the Lean formalization aligned with the stable packing spine, and only formalize full-union results once their proof objects are stable.
+5. Continue treating packable-subgraph optimization and full union-measure optimization as distinct objects.
 
 ## Correction history
 

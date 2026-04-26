@@ -126,7 +126,37 @@ Use:
 
 The Lean code is authoritative for what has actually been formalized and builds in Lean. It is **not** automatically authoritative for the full mathematical frontier, because the frontier may include results not yet formalized.
 
-## 5. `status.yaml`
+## 5. Certificate
+
+A **certificate** is a finite verification artifact supporting a specific proof step. It may be a finite case table, checker output, short script, generated certificate, or human-readable record of a computation.
+
+Certificates are used when a mathematical claim has been reduced to a finite verification problem, but that verification is not yet part of the Lean formalization.
+
+### What it is for
+
+- recording finite case checks;
+- making computational or table-based proof steps reproducible;
+- separating theorem-level mathematical exposition from low-level verification details;
+- marking claims as certificate-backed rather than fully Lean-formalized.
+
+### What it is not
+
+A certificate is not the authoritative frontier narrative; that is the frontier note.  
+A certificate is not automatically Lean-verified; the Lean source tree remains authoritative for what has been formally checked.
+
+### How to use it
+
+Use a certificate when a theorem in the frontier note or paper depends on a finite residual check or computationally generated table. The frontier note should state exactly which theorem uses the certificate and what status the certificate has.
+
+### Update rule
+
+When adding a certificate, also update:
+
+- the problem README;
+- `status.yaml`, if the certificate changes theorem status;
+- the frontier note, if the certificate supports a new result or changes a conjecture into a certificate-backed theorem.
+
+## 6. `status.yaml`
 
 Each problem should have a small `status.yaml` file that acts as a machine-readable pointer to the current canonical state.
 
@@ -148,7 +178,7 @@ Use this file for:
 - generating repo summaries,
 - checking that the README and canonical current paths are aligned.
 
-## 6. `current/` vs `archive/`
+## 7. `current/` vs `archive/`
 
 This distinction is part of the workflow.
 
@@ -175,7 +205,7 @@ Archive a version when it marks a real milestone, such as:
 - a paper-worthy step-change,
 - a formalization milestone that changes how the project should be described.
 
-## 7. Tooling vs problem data
+## 8. Tooling vs problem data
 
 Keep these separate.
 
@@ -199,7 +229,7 @@ Examples:
 
 The visualizer app is tooling. A problem's YAML file is problem data.
 
-## 8. Practical precedence rules
+## 9. Practical precedence rules
 
 When artifacts differ, use this order:
 
@@ -209,7 +239,7 @@ When artifacts differ, use this order:
 4. **Current frontier YAML** is authoritative only as a machine-readable summary, and should follow the frontier note.
 5. **Archives** are historical checkpoints, not the current state.
 
-## 9. Minimal update checklist
+## 10. Minimal update checklist
 
 When the mathematical frontier moves:
 

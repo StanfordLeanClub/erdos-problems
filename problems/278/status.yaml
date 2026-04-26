@@ -11,14 +11,21 @@ latest_frontier_yaml: frontier/current/frontier_visualizer.yaml
 
 latest_paper_tex: paper/current/erdos278_paper.tex
 latest_paper_pdf: paper/current/erdos278_paper.pdf
-latest_paper_md: paper/current/erdos278_paper.md
 
-correction_notice: corrections/v10_correction_notice.md
-latest_formalization_root: formalization/lean
+latest_certificates:
+  - certificates/residual_core_certificate_v1.md
+  - certificates/residual_core_certificate_checker_v1.py
 
 current_center_of_gravity: >
   squarefree common-core graph links; exact packability; corrected full-union
-  layer optimization; residual-core certificate frontier for clique threshold t=n-4
+  layer optimization; residual-core certificate frontier
+
+mathematical_frontier: >
+  full-capacity layer-union theory, exact K_n,t=n-3 theorem, and
+  certificate-backed residual-core program for K_n,t=n-4
+
+correction_notice: corrections/v10_correction_notice.md
+latest_formalization_root: formalization/lean
 
 stable_abstractions:
   - squarefree product-space cylinder model
