@@ -18,7 +18,7 @@ This certificate supports the corrected full-union clique-link target
 \[
 \operatorname{Opt}_{\mathrm{full}}(K_n,n-4)
 =
-inom n2 d^{-2}-15d^{-4}
+\binom n2 d^{-2}-15d^{-4}
 \qquad(d\ge n-1).
 \]
 
