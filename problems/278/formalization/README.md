@@ -1,8 +1,8 @@
 # Formalization status for Problem 278
 
-This directory tracks the Lean formalization corresponding to the corrected v10 paper draft and frontier note.
+This directory tracks the Lean formalization corresponding to the corrected v10/v12 paper draft and frontier note.
 
-The current Lean development formalizes the stable **packing spine** of the project. It does **not** formalize the demoted weighted maximum claims from the older v9 draft, and that is good: the v10 correction separates packable-subgraph optimization from the full #278 union-measure objective.
+The current Lean development formalizes the stable **packing spine** of the project. It does **not** formalize the demoted weighted maximum claims from the older v9 draft, and it does **not** yet formalize the post-v10 full-union layer optimization results.
 
 ## Current snapshot
 
@@ -16,7 +16,7 @@ The present Lean snapshot includes:
 6. complete-bipartite graph-link setup and structural lemmas;
 7. the exact complete-bipartite formula in the small-side regime `a < d`.
 
-This matches the corrected v10 paper claim about what is currently formalized.
+This matches the corrected paper claim about what is currently formalized.
 
 ## What the Lean currently supports
 
@@ -40,9 +40,13 @@ The current Lean project does **not** formalize:
 - arbitrary-weight clique threshold formulas;
 - any claim that packable-subgraph optimization is the same as full #278 maximum coverage;
 - the layer-union objective `U_d(H)`;
+- the full-capacity one-layer matching-polynomial theorem;
+- the clique-layer defect-cover lemma;
+- the exact full-union theorem for `K_n,t=n-3`;
+- the residual-core certificate for `K_n,t=n-4`;
 - the star–triangle normal form for arbitrary graph links.
 
-Those are either corrected/demoted in v10 or still future work.
+Those are either corrected/demoted in v10, stabilized but not formalized in v12, or still future work.
 
 ## v12 note
 
@@ -113,3 +117,18 @@ From `problems/278/formalization/lean/`:
 ```bash
 lake update
 lake build
+```
+
+If you want to reproduce the local project as closely as possible, keep the committed `lake-manifest.json`.
+
+If you want a lighter repository, you can omit the manifest and let `lake update` regenerate it from `lakefile.toml`, at the cost of potentially picking up slightly different transitive dependency revisions later.
+
+## Best next formalization targets
+
+1. Finish the remaining complete-bipartite packability regime `a >= d`.
+2. Formalize the star–triangle normal form for `chi_d(F)` as a packable-color invariant.
+3. Formalize/check the one-layer `K4` example separating packable-subgraph value from full union value.
+4. Formalize corrected clique-link criteria only after the corrected proof is fully stabilized.
+5. Define the layer-union objective `U_d(H)` once the mathematical formulation is stable enough.
+6. Eventually formalize the full-capacity one-layer matching-polynomial theorem and the `K_n,t=n-3` theorem.
+7. Treat the `K_n,t=n-4` residual-core certificate as external until it is converted into a Lean-friendly proof object.

@@ -11,6 +11,10 @@ latest_frontier_yaml: frontier/current/frontier_visualizer.yaml
 
 latest_paper_tex: paper/current/erdos278_paper.tex
 latest_paper_pdf: paper/current/erdos278_paper.pdf
+latest_paper_md: paper/current/erdos278_paper.md
+
+correction_notice: corrections/v10_correction_notice.md
+latest_formalization_root: formalization/lean
 
 latest_certificates:
   - certificates/residual_core_certificate_v1.md
@@ -18,14 +22,13 @@ latest_certificates:
 
 current_center_of_gravity: >
   squarefree common-core graph links; exact packability; corrected full-union
-  layer optimization; residual-core certificate frontier
+  layer optimization; residual-core certificate frontier for clique threshold
+  t=n-4
 
-mathematical_frontier: >
-  full-capacity layer-union theory, exact K_n,t=n-3 theorem, and
-  certificate-backed residual-core program for K_n,t=n-4
-
-correction_notice: corrections/v10_correction_notice.md
-latest_formalization_root: formalization/lean
+operational_goal: >
+  develop exact structural theory for squarefree congruence packing and true
+  full-union maximum coverage, while keeping packable-subgraph optimization
+  distinct from union-measure optimization.
 
 stable_abstractions:
   - squarefree product-space cylinder model
@@ -37,6 +40,14 @@ stable_abstractions:
   - one-layer union objective U_d(H)
   - full-capacity matching-polynomial formula
   - clique-layer defect-cover lemma
+
+stable_packability_results:
+  - pair-support theorem
+  - common-core graph-link theorem
+  - star packability formula
+  - complete-bipartite packability formula, with Lean currently covering the small-side regime
+  - uniform clique-link theorem as a project-level result, not yet Lean-formalized
+  - corrected arithmetic clique-link threshold, pending fully stabilized corrected proof writeup
 
 stable_full_union_results:
   - full-capacity one-layer graph-link matching-polynomial formula
@@ -50,20 +61,39 @@ certificate_backed_results:
     statement: Opt_full(K_n,n-4)=binom(n,2)d^-2 - 15d^-4 for d>=n-1
     status: certificate-backed / proof-writing needed
     certificate: certificates/residual_core_certificate_v1.md
-    checker: certificates/residual_core_checker_v1.py
+    checker: certificates/residual_core_certificate_checker_v1.py
     key_correction: residual model must include empty colors when h < r-4
+
+major_corrections_v10:
+  - packable-subgraph optimization is not the same as full #278 maximum coverage
+  - weighted graph-link results should not be advertised as exact full #278 maxima without separate union-measure upper bounds
+  - old nonuniform clique-link criterion using c_i - 2 was incorrect
+  - corrected triangle-plus-stars clique-link criterion uses b_i - 3 after choosing three triangle vertices
+  - arbitrary-weight clique threshold theorem was demoted/deleted
+  - true full-coverage frontier is the one-layer union objective U_d(H)
 
 formalization_status: >
   finite core theory formalized; graph-link layer formalized; star criteria
   formalized; substantial complete-bipartite packability library formalized,
-  including the exact small-side theorem. The full-union layer optimization and
-  residual-core certificate are not yet Lean-formalized.
+  including the exact small-side theorem. The full-union layer optimization
+  and residual-core certificate are not yet Lean-formalized.
+
+mathematical_frontier: >
+  full-capacity layer-union theory, exact K_n,t=n-3 theorem, and
+  certificate-backed residual-core program for K_n,t=n-4.
 
 next_math_targets:
   - make residual-core certificate fully executable or human-checkable
   - promote K_n,t=n-4 theorem after certificate packaging
   - attack full-capacity bipartite layer-union analogue
-  - formalize U_d(H) and the one-layer matching formula later
+  - extend corrected full-union methods beyond near-threshold clique layers
+
+next_formalization_targets:
+  - remaining complete-bipartite packability regime a >= d
+  - star-triangle normal form for chi_d(F) as a packable-color invariant
+  - one-layer K4 example separating packable-subgraph value from full union value
+  - corrected clique-link criteria after the proof is fully stabilized
+  - layer-union definitions U_d(H) once the mathematical formulation is stable enough
 
 public_problem_links:
   - https://www.erdosproblems.com/278

@@ -2,7 +2,7 @@
 
 This repository collects research progress made by Stanford's AI for Lean club on selected Erdős problems.
 
-The repo is organized **by problem**, so each problem folder can evolve semi-independently as the research frontier, paper draft, visualizer state, and Lean formalization change.
+The repo is organized **by problem**, so each problem folder can evolve semi-independently as the research frontier, paper draft, visualizer state, certificates, and Lean formalization change.
 
 ## Repository layout
 

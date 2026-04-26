@@ -25,7 +25,7 @@ It should do all of the following:
   - promising but not yet stabilized directions,
   - ideas that were demoted or killed;
 - include enough citations / references / provenance that a fresh, skeptical reader can check the branch;
-- be written so that a fresh and sufficiently capable reasoner can start from the public problem statement (or the public problem page) and follow the document's reasoning all the way to the current frontier.
+- be written so that a fresh and sufficiently capable reasoner can start from the public problem statement or the public problem page and follow the document's reasoning all the way to the current frontier.
 
 A frontier note is therefore **not** just a lab notebook entry and **not** just a theorem list. It is the canonical human-readable record of the project's current frontier on that problem.
 
@@ -45,9 +45,9 @@ For mathematical content, the frontier note is the authoritative current narrati
 
 ## 2. Frontier visualizer YAML
 
-A **frontier visualizer YAML** file is a machine-readable summary of the current frontier note.
+A **frontier visualizer YAML** file is a machine-readable summary of the current frontier note. Its purpose is to support visualization and lightweight tooling.
 
-Its purpose is to support visualization and lightweight tooling. It should summarize items such as:
+It should summarize items such as:
 
 - current frontier version / date,
 - ultimate problem and current operational goal,
@@ -72,15 +72,11 @@ Use the YAML when you want to:
 
 ### Update rule
 
-The YAML should be updated together with the frontier note whenever the current frontier materially changes.
-
-If the YAML and the frontier note disagree, the frontier note wins and the YAML should be fixed.
+The YAML should be updated together with the frontier note whenever the current frontier materially changes. If the YAML and the frontier note disagree, the frontier note wins and the YAML should be fixed.
 
 ## 3. Paper draft
 
-A **paper draft** is the current research-paper presentation of the problem branch.
-
-It is not identical to the frontier note.
+A **paper draft** is the current research-paper presentation of the problem branch. It is not identical to the frontier note.
 
 A paper draft should:
 
@@ -92,8 +88,7 @@ A paper draft should:
 
 ### How it differs from a frontier note
 
-A frontier note is allowed to foreground path of discovery, consolidation choices, live targets, and demotions.
-A paper draft is more polished and selective: it should emphasize the mathematical story the project is ready to stand behind publicly.
+A frontier note is allowed to foreground path of discovery, consolidation choices, live targets, and demotions. A paper draft is more polished and selective: it should emphasize the mathematical story the project is ready to stand behind publicly.
 
 ### How to use it
 
@@ -105,9 +100,7 @@ Use the paper draft when you want:
 
 ## 4. Lean formalization
 
-The **Lean formalization** is the machine-checked part of the project for a given problem.
-
-It should live under `problems/<number>/formalization/lean/` and include the package metadata required to build it when possible.
+The **Lean formalization** is the machine-checked part of the project for a given problem. It should live under `problems/<number>/formalization/lean/` and include the package metadata required to build it when possible.
 
 ### What it is for
 
@@ -124,7 +117,7 @@ Use:
 
 ### Authoritative status
 
-The Lean code is authoritative for what has actually been formalized and builds in Lean. It is **not** automatically authoritative for the full mathematical frontier, because the frontier may include results not yet formalized.
+The Lean code is authoritative for what has actually been formalized and build-checked. It is **not** automatically authoritative for the full mathematical frontier, because the frontier may include results not yet formalized.
 
 ## 5. Certificate
 
@@ -141,7 +134,8 @@ Certificates are used when a mathematical claim has been reduced to a finite ver
 
 ### What it is not
 
-A certificate is not the authoritative frontier narrative; that is the frontier note.  
+A certificate is not the authoritative frontier narrative; that is the frontier note.
+
 A certificate is not automatically Lean-verified; the Lean source tree remains authoritative for what has been formally checked.
 
 ### How to use it
@@ -168,7 +162,8 @@ Typical fields include:
 - latest paper path,
 - latest frontier note path,
 - latest frontier YAML path,
-- current formalization status.
+- current formalization status,
+- current certificate paths, if any.
 
 ### How to use it
 
@@ -184,10 +179,10 @@ This distinction is part of the workflow.
 
 ### `current/`
 
-Contains the single canonical current artifact of that type.
-Use stable filenames here.
+Contains the single canonical current artifact of that type. Use stable filenames here.
 
 Examples:
+
 - `paper/current/erdos278_paper.tex`
 - `paper/current/erdos278_paper.pdf`
 - `frontier/current/frontier_note.md`
@@ -195,8 +190,7 @@ Examples:
 
 ### `archive/`
 
-Contains only historically meaningful snapshots.
-Do **not** archive every scratch revision. Git already stores fine-grained history.
+Contains only historically meaningful snapshots. Do **not** archive every scratch revision. Git already stores fine-grained history.
 
 Archive a version when it marks a real milestone, such as:
 
@@ -212,22 +206,27 @@ Keep these separate.
 ### Problem data
 
 Lives inside `problems/<number>/...`.
+
 Examples:
+
 - paper draft files,
 - frontier note,
 - frontier YAML,
 - Lean code for that problem,
-- problem-local references.
+- problem-local references,
+- problem-local certificates.
 
 ### Tooling
 
 Lives under `tools/`.
+
 Examples:
+
 - frontier visualizer app code,
 - scripts that validate YAML files,
 - scripts that generate summaries.
 
-The visualizer app is tooling. A problem's YAML file is problem data.
+The visualizer app is tooling. A problem's YAML file is problem data. A certificate checker may live in the problem's `certificates/` directory if it is problem-specific, or under `tools/` if it is reusable across problems.
 
 ## 9. Practical precedence rules
 
@@ -236,8 +235,9 @@ When artifacts differ, use this order:
 1. **Lean code** is authoritative about what has actually been formalized and build-checked.
 2. **Current frontier note** is authoritative about the current human-readable frontier narrative.
 3. **Current paper draft** is authoritative about the current polished paper presentation.
-4. **Current frontier YAML** is authoritative only as a machine-readable summary, and should follow the frontier note.
-5. **Archives** are historical checkpoints, not the current state.
+4. **Current certificates** are authoritative for the finite verification artifacts they explicitly certify, but not for the whole frontier narrative.
+5. **Current frontier YAML** is authoritative only as a machine-readable summary, and should follow the frontier note.
+6. **Archives** are historical checkpoints, not the current state.
 
 ## 10. Minimal update checklist
 
@@ -248,4 +248,5 @@ When the mathematical frontier moves:
 - update `status.yaml`;
 - update the problem README if the high-level description changed;
 - update the paper draft if the current paper should now reflect the new frontier;
-- update the formalization README if Lean status changed.
+- update the formalization README if Lean status changed;
+- update or add certificates if the new result depends on a finite check.
