@@ -25,11 +25,6 @@ current_center_of_gravity: >
   layer optimization; residual-core certificate frontier for clique threshold
   t=n-4
 
-operational_goal: >
-  develop exact structural theory for squarefree congruence packing and true
-  full-union maximum coverage, while keeping packable-subgraph optimization
-  distinct from union-measure optimization.
-
 stable_abstractions:
   - squarefree product-space cylinder model
   - singleton residual-box reduction
@@ -40,14 +35,6 @@ stable_abstractions:
   - one-layer union objective U_d(H)
   - full-capacity matching-polynomial formula
   - clique-layer defect-cover lemma
-
-stable_packability_results:
-  - pair-support theorem
-  - common-core graph-link theorem
-  - star packability formula
-  - complete-bipartite packability formula, with Lean currently covering the small-side regime
-  - uniform clique-link theorem as a project-level result, not yet Lean-formalized
-  - corrected arithmetic clique-link threshold, pending fully stabilized corrected proof writeup
 
 stable_full_union_results:
   - full-capacity one-layer graph-link matching-polynomial formula
@@ -64,14 +51,6 @@ certificate_backed_results:
     checker: certificates/residual_core_certificate_checker_v1.py
     key_correction: residual model must include empty colors when h < r-4
 
-major_corrections_v10:
-  - packable-subgraph optimization is not the same as full #278 maximum coverage
-  - weighted graph-link results should not be advertised as exact full #278 maxima without separate union-measure upper bounds
-  - old nonuniform clique-link criterion using c_i - 2 was incorrect
-  - corrected triangle-plus-stars clique-link criterion uses b_i - 3 after choosing three triangle vertices
-  - arbitrary-weight clique threshold theorem was demoted/deleted
-  - true full-coverage frontier is the one-layer union objective U_d(H)
-
 formalization_status: >
   finite core theory formalized; graph-link layer formalized; star criteria
   formalized; substantial complete-bipartite packability library formalized,
@@ -80,7 +59,7 @@ formalization_status: >
 
 mathematical_frontier: >
   full-capacity layer-union theory, exact K_n,t=n-3 theorem, and
-  certificate-backed residual-core program for K_n,t=n-4.
+  certificate-backed residual-core program for K_n,t=n-4
 
 next_math_targets:
   - make residual-core certificate fully executable or human-checkable

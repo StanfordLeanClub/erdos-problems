@@ -19,23 +19,16 @@ Related public pages:
 
 This problem folder contains paper-worthy partial progress, but **not** a full solution of Erdős #278.
 
-As of the v12 frontier, the stable part of the project is:
+As of v12, the project has post-v10 full-union results:
 
-- the squarefree product-space cylinder model;
-- perfect packing as intersection-separating colorings;
-- the pair-support theorem;
-- the common-core theorem;
-- the graph-link invariant \(\chi_d(G)\);
-- exact packability results for several graph-link families;
-- a corrected full-union layer objective for true maximum coverage;
-- a full-capacity one-layer matching-polynomial theorem;
-- an exact full-union theorem for \(K_n,t=n-3\);
-- a certificate-backed residual-core program for \(K_n,t=n-4\);
-- a Lean formalization of the stable packing spine and the complete-bipartite small-side theorem.
+- a full-capacity one-layer matching-polynomial formula;
+- an exact \(K_n,t=n-3\) theorem;
+- a stable \(K_6,t=2\) base case;
+- a certificate-backed \(K_n,t=n-4\) residual-core program.
 
-The project remains organized around exact structural families rather than a claimed universal formula for the full #278 maximum.
+The \(K_n,t=n-4\) theorem should remain certificate-backed / proof-writing-needed until the residual table is packaged as an executable checker or a human-checkable proof.
 
-## Corrected v10/v12 framing
+## Corrected framing
 
 The current mathematical center is:
 
@@ -53,9 +46,10 @@ The v12 work is on the full-union side. It studies the one-layer objective \(U_d
 
 - Current paper draft: `paper/current/erdos278_paper.tex`
 - Current paper PDF: `paper/current/erdos278_paper.pdf`
-- Optional current paper Markdown: `paper/current/erdos278_paper.md`
+- Current paper Markdown: `paper/current/erdos278_paper.md`
 - Current frontier note: `frontier/current/frontier_note.md`
 - Current visualizer YAML: `frontier/current/frontier_visualizer.yaml`
+- Current status file: `status.yaml`
 - Correction notice: `corrections/v10_correction_notice.md`
 - Certificates: `certificates/`
 - Lean formalization: `formalization/lean/`
@@ -74,7 +68,7 @@ The key correction recorded by the certificate is that the residual model must i
 
 ## Lean formalization status
 
-The Lean development currently formalizes the stable packing material, not the full-union residual-core results.
+The Lean development currently formalizes the stable packing material, not the demoted weighted-overclaim material and not the v12 full-union residual-core certificate.
 
 Current Lean coverage includes:
 
@@ -107,8 +101,4 @@ The v10 correction notice records the main change from v9:
 - arbitrary-weight clique threshold formulas were demoted;
 - the weighted graph-link material was reframed as packable-subgraph optimization unless a separate union-measure theorem is proved.
 
-The v12 update records the first substantial post-v10 full-union progress:
-
-- full-capacity one-layer matching-polynomial formula;
-- exact corrected full-union theorem for \(K_n,t=n-3\);
-- certificate-backed residual-core program for \(K_n,t=n-4\), including the empty-color correction.
+The v12 update records the first substantial post-v10 full-union results and the residual-core certificate program.

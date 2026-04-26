@@ -108,8 +108,6 @@ This scaffold includes the working package metadata from the local project:
 
 The manifest records `mathlib` at `v4.29.0` and additional packages inherited from the local environment such as `plausible`, `LeanSearchClient`, `importGraph`, `proofwidgets`, `aesop`, `Qq`, `batteries`, and `Cli`.
 
-The essential package declaration in `lakefile.toml` is the `mathlib` dependency and the `Erdos278` Lean library; the manifest preserves the exact environment used in the uploaded local project.
-
 ## Build / reproduce
 
 From `problems/278/formalization/lean/`:
@@ -118,10 +116,6 @@ From `problems/278/formalization/lean/`:
 lake update
 lake build
 ```
-
-If you want to reproduce the local project as closely as possible, keep the committed `lake-manifest.json`.
-
-If you want a lighter repository, you can omit the manifest and let `lake update` regenerate it from `lakefile.toml`, at the cost of potentially picking up slightly different transitive dependency revisions later.
 
 ## Best next formalization targets
 

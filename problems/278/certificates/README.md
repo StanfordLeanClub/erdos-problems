@@ -18,7 +18,7 @@ This certificate supports the corrected full-union clique-link target
 \[
 \operatorname{Opt}_{\mathrm{full}}(K_n,n-4)
 =
-\binom n2 d^{-2}-15d^{-4}
+inom n2 d^{-2}-15d^{-4}
 \qquad(d\ge n-1).
 \]
 
@@ -34,7 +34,7 @@ This is a lightweight checker scaffold documenting the finite-check model. It is
 
 The certificate belongs to the **full-union** side of Erdős #278, not merely the packability side.
 
-The project’s v10 correction separated packable-subgraph optimization from the actual #278 maximum-coverage objective. The residual-core certificate is part of the post-v10 effort to prove exact theorems for the corrected full-union objective.
+The project's v10 correction separated packable-subgraph optimization from the actual #278 maximum-coverage objective. The residual-core certificate is part of the post-v10 effort to prove exact theorems for the corrected full-union objective.
 
 ## Status
 
