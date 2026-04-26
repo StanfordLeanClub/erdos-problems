@@ -14,7 +14,7 @@ The repo is organized **by problem**, so each problem folder can evolve semi-ind
 
 | Problem | Title | Status | Current center of gravity |
 |---|---|---|---|
-| 278 | Maximum density of congruence covers | active; paper-worthy partial progress; corrected v10; not a full solution | squarefree common-core graph links; exact packability; packable-subgraph optimization; layer-union frontier |
+| 278 | Maximum density of congruence covers | active; paper-worthy partial progress; v12 full-union update; not a full solution | squarefree common-core graph links; exact packability; corrected full-union layer optimization; residual-core certificate frontier |
 
 ## How to read a problem folder
 

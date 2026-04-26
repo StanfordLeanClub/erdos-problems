@@ -44,6 +44,10 @@ The current Lean project does **not** formalize:
 
 Those are either corrected/demoted in v10 or still future work.
 
+## v12 note
+
+The v12 full-union residual-core results are not currently Lean-formalized. The Lean code still covers the packing spine. The residual-core certificate for \(K_n,t=n-4\) is an external certificate/checker target, not a Lean theorem.
+
 ## Module map
 
 ### Core

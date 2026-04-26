@@ -1,108 +1,148 @@
+
 \documentclass[11pt]{article}
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{hyperref}
+\usepackage{booktabs}
 \usepackage{enumitem}
 \newtheorem{theorem}{Theorem}
 \newtheorem{proposition}{Proposition}
 \newtheorem{definition}{Definition}
 \newtheorem{remark}{Remark}
-\title{Squarefree Congruence Packing via Common-Core Graph Links\\Corrected Working Draft v10}
+\title{Squarefree Congruence Packing and Full-Union Layer Optimization\\Corrected Working Draft v12}
 \author{Stanford AI for Lean Club project notes}
 \date{April 25, 2026}
 \begin{document}
 \maketitle
 \begin{abstract}
-We develop a finite structural theory for squarefree congruence packing and related packable-subgraph optimization problems arising from Erd\H{o}s Problem \#278. This corrected draft separates perfect packing and packable-subgraph optimization from the full maximum-coverage problem. Perfect packing gives exact maximum densities in families where all cylinders can be chosen disjointly. Packable-subgraph optimization gives exact disjoint constructions and lower bounds, but it is not automatically the full \#278 maximum because overlapping non-packable cylinders may still add union measure. The stable contributions are the squarefree cylinder model, intersection-separating perfect packing, the pair-support and common-core theorems, the graph-link invariant $\chi_d(G)$, corrected clique-link packing criteria, the star-triangle normal form for $\chi_d(F)$, and algorithmic schemes for the packable-subgraph objective. The true maximum-coverage frontier is the one-layer union objective $U_d(H)$.
+We develop a finite structural theory for squarefree congruence packing and corrected full-union layer optimization arising from Erd\H{o}s Problem \#278. The stable packing spine sends squarefree modulus families to product-space cylinder problems, identifies perfect packing with intersection-separating local patterns, and reduces common-core graph links to the graph invariant $\chi_d(G)$. The v10 correction separated packable-subgraph optimization from the actual maximum-coverage problem: overlapping non-packable cylinders may still add union measure. This v12 draft adds the first substantial corrected full-union results. In the full-capacity one-layer regime, the exact union measure is given by a matching-polynomial formula. For common-core graph links, the true maximum becomes a layer-partition problem. For uniform full-capacity clique links we prove a defect-cover lemma and obtain the exact value at the first non-perfect threshold $t=n-3$. We also record a certificate-backed residual-core program for the next threshold $t=n-4$, including the key correction that empty colors must be included in the finite residual model.
 \end{abstract}
 
-\section{Introduction}
-Erd\H{o}s Problem \#278 asks for the maximum density covered by prescribed congruence moduli. The minimum-density side is known; the maximum side remains open. The present project is not a solution of \#278. Its stable contribution is a structural theory for squarefree congruence packing and packable graph-link subproblems.
+\section{Purpose and scope}
+Erd\H{o}s Problem \#278 asks for the maximum density covered by congruence classes with prescribed moduli. The minimum-density side is known; the maximum side remains open. This draft is not a full solution. Its purpose is to organize a structural theory for broad squarefree families.
 
-Earlier drafts over-identified weighted packable-subgraph optimization with full maximum coverage. This draft corrects that. The paper should be read as a packing paper with a carefully marked bridge toward full maximum coverage.
+The project now has two layers: packing theory, and full-union theory. The v10 correction remains essential: packable-subgraph optimization is not the same as full \#278 maximum coverage. The post-v10 results below live on the corrected full-union side.
 
-\section{Squarefree product-space model}
-Let $Q=\prod_{i=1}^d p_i$ be squarefree and $X=\prod_i\Omega_i$, with $|\Omega_i|=p_i$ initially. A support $S\subseteq[d]$ corresponds to the modulus $n_S=\prod_{i\in S}p_i$ and to an $S$-cylinder
+\section{Squarefree cylinders and perfect packing}
+Let $Q=\prod_{i=1}^d p_i$ be squarefree, and work in $X=\prod_i\Omega_i$. A support $S\subseteq[d]$ corresponds to $n_S=\prod_{i\in S}p_i$ and to an $S$-cylinder
 \[
-C_S(a)=\{x\in X:x_i=a_i\text{ for all }i\in S\},
-\qquad \mu(C_S)=1/n_S.
+C_S(a)=\{x\in X:x_i=a_i\text{ for all }i\in S\},\qquad \mu(C_S)=1/n_S.
 \]
-Singleton supports reduce maximum coverage to a residual box in which coordinate sizes are $p_i-1$ or $p_i$.
+A support family is perfectly packable if one can choose one cylinder for every support so that all chosen cylinders are pairwise disjoint. Equivalently, the chosen local patterns separate every pair of supports on a common coordinate. If a whole family is perfectly packable, the union bound is attained.
 
-\section{Perfect packing}
-A support family $\mathcal H$ is perfectly packable iff there are local patterns $a_S\in\prod_{i\in S}\Omega_i$ such that for all distinct $S,T$,
+For common-core graph links $C*G=\{C\cup e:e\in E(G)\}$, the core budget is $D_C=\prod_{i\in C}d_i$. The perfect-packing side is governed by $\chi_d(G)$, the least number of colors needed to partition $E(G)$ into pair-support classes satisfying matching-number and degree-capacity constraints.
+
+\section{The corrected full-union objective}
+For a graph link $H$ with vertex capacities $d_v$, define
 \[
-a_S|_{S\cap T}\ne a_T|_{S\cap T}.
+U_d(H)=\max_{\text{endpoint labelings}}\mu\left(\bigcup_{uv\in E(H)}C_{uv}\right).
 \]
-If this holds for the whole family, the union density is exactly $\sum_{S\in\mathcal H}1/n_S$.
-
-\section{Common-core graph links}
-For $\mathcal H=C*\mathcal L$ with petal supports disjoint from the core, let $D_C=\prod_{i\in C}d_i$. Then
+For a common-core graph link with $t=D_C$ available core patterns, the residual full-union objective is
 \[
-C*\mathcal L\text{ is perfectly packable}\iff \chi_{\rm pack}(\mathcal L)\le D_C.
+\operatorname{Opt}_{\mathrm{full}}(G,t)=\max_{E(G)=E_1\sqcup\cdots\sqcup E_t}\sum_{r=1}^t U_d(G[E_r]),
 \]
-For graph links this gives $\chi_d(G)$, the least number of colors needed to partition $E(G)$ into classes with matching number at most $1$ and local degrees bounded by $d_v$.
+up to the common core-density normalization. Perfect packing is exactly the zero-defect case in which every layer has matching number at most one.
 
-\section{Stable packability results}
-The pair-support theorem, star formula, complete bipartite formula, and uniform clique-link theorem remain in the stable packability bucket. The current Lean code covers the core packing definitions, pair-support theorem, common-core theorem, graph-link definitions, stars, and the small-side complete bipartite theorem.
-
-\subsection{Corrected nonuniform clique-link criterion}
-The previous $c_i-2$ criterion was wrong. In an $n-2$ color construction for $K_n$, the correct shape is one triangle plus $n-3$ stars. Hence each star center has base load $3$.
-
-\begin{theorem}[corrected $n-2$ construction criterion]
-Suppose there are three vertices $x,y,z$ with capacities at least $2$ such that, after sorting the remaining capacities as $b_1\le\cdots\le b_{n-3}$,
+\section{Full-capacity one-layer formula}
+Assume $d_v\ge \deg_H(v)$ for all $v\in V(H)$. Then an optimal one-layer labeling can be chosen proper at every vertex.
+\begin{theorem}
+Under the full-capacity hypothesis,
 \[
-\sum_{i=1}^k(b_i-3)\ge {k\choose2}\qquad(1\le k\le n-3).
+U_d(H)=\sum_{\varnothing\ne M\text{ matching in }H}(-1)^{|M|+1}\prod_{v\in V(M)}\frac1{d_v}.
 \]
-Then $K_n$ admits a decomposition into $n-2$ admissible intersecting classes: one triangle on $x,y,z$ and $n-3$ stars.
 \end{theorem}
 \begin{proof}[Proof sketch]
-Use the triangle $xyz$. The remaining vertices are star centers. Edges among star centers are assigned by a tournament; the star at $v$ has size $3+\operatorname{outdeg}(v)$. Landau's bounded score criterion gives the displayed prefix condition.
+Fix all labels away from one vertex $v$. For every outside configuration, coverage through edges incident to $v$ depends on how many distinct active $v$-labels are available. Splitting a shared label into two labels cannot decrease this number pointwise. Since $d_v\ge\deg_H(v)$, repeated refinement produces a proper labeling. Under proper labeling, a collection of edge-cylinders has nonempty intersection exactly when the corresponding graph edges form a matching. Inclusion-exclusion over matchings gives the formula.
+\end{proof}
+For uniform $K_n$,
+\[
+U(K_n)=\sum_{k=1}^{\lfloor n/2\rfloor}(-1)^{k+1}\frac{n!}{2^k k!(n-2k)!}d^{-2k}.
+\]
+For uniform $K_{a,b}$, with $q=(d_Ld_R)^{-1}$,
+\[
+U(K_{a,b})=\sum_{k=1}^{\min(a,b)}(-1)^{k+1}k!\binom ak\binom bkq^k.
+\]
+
+\section{Defect language for clique layers}
+For uniform full-capacity clique links, put $q=d^{-2}$. With proper endpoint labels, a random point fires a random matching of edges. For a layer $H\subseteq K_n$, let $N_H$ be the number of fired edges in $H$. Then $U(H)=\Pr(N_H\ge1)$ and
+\[
+D(H)=|E(H)|q-U(H)=\mathbb E[(N_H-1)_+].
+\]
+Let $\Gamma_H$ be the conflict graph whose vertices are edges of $H$, adjacent when the corresponding clique-edges are disjoint.
+\begin{theorem}[Defect-cover lemma]
+\[
+D(H)\ge \tau(\Gamma_H)q^2.
+\]
+\end{theorem}
+\begin{proof}[Proof sketch]
+Induct on $\tau(\Gamma_H)$. If $\tau=0$, then $H$ is intersecting and $D(H)=0$. Otherwise choose an edge-vertex $e$ in a minimum vertex cover. Removing $e$ lowers $\tau$ by one. Adding $e$ back increases defect by the measure of its intersection with the previous union; since $e$ has a disjoint neighbor, this increase is at least $q^2$.
 \end{proof}
 
-The arithmetic clique-link corollary should be reproved using this corrected three-deleted-vertices criterion, including small-case checks.
-
-\section{Packable-subgraph optimization}
-For a weighted graph link define
+\section{Exact full-union clique value at $t=n-3$}
+\begin{theorem}
+For $d\ge n-1$, with $q=d^{-2}$,
 \[
-P_t(G)=\max\{\sum_{e\in F}w_e:F\subseteq E(G),\chi_d(F)\le t\}.
+\operatorname{Opt}_{\mathrm{full}}(K_n,n-3)=\binom n2q-3q^2.
 \]
-This is not the full \#278 maximum in general.
-
-\begin{theorem}[star-triangle normal form]
-For a graph $F$ with capacities $d_v$,
-\[
-\chi_d(F)=\min_{\mathcal T,\vec H}\left(|\mathcal T|+\sum_v\left\lceil\frac{m_v}{d_v}\right\rceil\right),
-\]
-where $\mathcal T$ ranges over edge-disjoint admissible triangles, $H=F\setminus\bigcup_{T\in\mathcal T}E(T)$, $\vec H$ is an orientation of $H$, and $m_v$ is indegree at $v$.
 \end{theorem}
+\begin{proof}[Proof sketch]
+In any $(n-3)$-layer partition, delete a minimum conflict-cover from each layer. The remaining layers are intersecting. Since $n-3$ intersecting families cover at most $\binom n2-3$ edges of $K_n$, the total conflict-cover size is at least $3$. The defect-cover lemma gives loss at least $3q^2$. Equality is attained by $n-4$ star layers plus one $K_4$-layer.
+\end{proof}
 
-For fixed $t$, $P_t(G)$ is computable in $n^{O(t)}$ time by enumerating triangle colors and packet counts, then solving a maximum-weight capacitated incidence assignment by flow. For fixed treewidth, $P_t(G)$ is computable by a finite-interface dynamic program on a nice tree decomposition.
-
-\section{Why this is not full maximum coverage}
-Consider one layer of $K_4$ with all coordinate sizes $p$. A one-color packable subgraph has at most three edges, value $3p^{-2}$. But assigning distinct local labels to incident edges at each vertex uses all six cylinders; adjacent cylinders are disjoint and only the three opposite edge pairs intersect, giving union measure
+\section{The $t=n-4$ residual-core certificate}
+The next conjectured value is
 \[
-6p^{-2}-3p^{-4}>3p^{-2}.
+\operatorname{Opt}_{\mathrm{full}}(K_n,n-4)\stackrel{?}{=}\binom n2q-15q^2.
 \]
-Thus packable-subgraph optimization is not the full \#278 maximum.
+The construction is $n-5$ star layers plus one $K_5$-layer.
 
-\section{The new maximum-coverage frontier}
-Define $U_d(H)$ as the maximum one-layer union measure obtained by choosing one pair-cylinder for every edge of $H$. The true common-core full-coverage problem with budget $D_C=t$ is governed by partitions $E(G)=E_1\sqcup\cdots\sqcup E_t$ and contributions $\sum_r U_d(G[E_r])$.
-
-In the full-capacity regime, proper local labeling gives the lower bound
+\subsection{Residual-core reduction}
+Suppose a counterexample exists. Delete a vertex cover from each color's conflict graph. If first-order defect were below $15$, at most $14$ edge-vertices are deleted. The remaining classes are intersecting and cover at least $\binom n2-14$ edges. If this skeleton has $s$ star classes and $h$ triangle classes, with $s+h\le n-4$, let $r=n-s$. The support bound
 \[
-U_d(H)\ge \sum_{\emptyset\ne M\text{ matching in }H}(-1)^{|M|+1}\prod_{v\in V(M)}\frac1{d_v}.
+|E_{\mathrm{skel}}|\le s(n-s)+\binom s2+3h
 \]
-The best next target is to prove or refute optimality of this construction.
+with $h\le r-4$ forces $4\le r\le7$.
 
-\section{Conclusion}
-The project remains paper-worthy as a theory of squarefree congruence packing via common-core graph links. The corrected frontier is layer-union optimization, not more packable-subgraph formulas mislabeled as full \#278 maxima.
+\subsection{Empty colors}
+The residual model must include empty colors. If $h<r-4$, then $r-4-h$ colors are empty after the deletion step. Residual edges may be placed in those empty colors with no skeleton-base cost. This correction is essential in the finite certificate.
+
+\subsection{Certificate table}
+The current finite certificate v1 gives the following normalized residual-defect minima:
+\[
+\begin{array}{c|c|c|c|c}
+\toprule
+r&h&\text{residual edges}&\text{empty colors}&\min(\mathrm{defect}/q^2)\\
+\midrule
+4&0&6&0&15\\
+5&0&10&1&15\\
+5&1&7&0&15\\
+6&0&15&2&15\\
+6&1&12&1&15\\
+6&2&9&0&15\\
+6&2&9&0&15\\
+7&2&15&1&15\\
+7&2&15&1&15\\
+7&3&12&0&16\\
+7&3&12&0&16\\
+7&3&12&0&16\\
+\bottomrule
+\end{array}
+\]
+Repeated rows represent non-isomorphic triangle skeletons. This table includes the full residual defect polynomial rather than only first-order pair counts.
+
+\subsection{Status}
+The $K_n,t=n-4$ theorem is certificate-backed but still needs final packaging. It should be promoted to a polished theorem only after the paper or repository includes either an executable checker or a human-checkable proof of the residual table.
+
+\section{Lean and repository status}
+The current Lean development formalizes the stable packing spine, not the layer-union residual-core certificate. No Lean source changes are needed for the v12 update. Future formalization targets include $U_d(H)$, the one-layer matching formula, and a finite certificate for the $t=n-4$ residual cases.
+
+\section{Next steps}
+Add the residual-core certificate to the repository, decide whether the certificate should be executable, human-readable, or both, update the frontier and paper current artifacts to v12, and then either polish the $K_n,t=n-4$ theorem or attack the analogous full-capacity bipartite layer-union problem.
 
 \begin{thebibliography}{9}
-\bibitem{Bloom278} T. F. Bloom, Erd\H{o}s Problem \#278, \url{https://www.erdosproblems.com/278}, accessed 2026-04-25.
-\bibitem{Bloom202} T. F. Bloom, Erd\H{o}s Problem \#202, \url{https://www.erdosproblems.com/202}, accessed 2026-04-25.
-\bibitem{Bloom1190} T. F. Bloom, Erd\H{o}s Problem \#1190, \url{https://www.erdosproblems.com/1190}, accessed 2026-04-25.
-\bibitem{Cambie} S. Cambie, Proving it is impossible; on Erd\H{o}s problem \#278, arXiv:2508.18270, 2025.
-\bibitem{Landau} H. G. Landau, On dominance relations and the structure of animal societies: III. The condition for a score structure, Bull. Math. Biophys. 15 (1953), 143--148.
+\bibitem{Bloom278} T. F. Bloom, Erd\H{o}s Problem \#278, \url{https://www.erdosproblems.com/278}.
+\bibitem{Bloom202} T. F. Bloom, Erd\H{o}s Problem \#202, \url{https://www.erdosproblems.com/202}.
+\bibitem{Bloom1190} T. F. Bloom, Erd\H{o}s Problem \#1190, \url{https://www.erdosproblems.com/1190}.
+\bibitem{Cambie} S. Cambie, Proving it is impossible; on Erd\H{o}s problem \#278, arXiv:2508.18270.
 \end{thebibliography}
 \end{document}

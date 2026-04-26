@@ -1,81 +1,54 @@
-frontier_version: v10_corrected
+frontier_version: v12
+problem: 278
 date: 2026-04-25
+status: paper-worthy partial progress; not a full solution
 
 ultimate_problem:
-  name: "Erdős #278"
-  goal: "maximum density of congruence covers"
-  public_status: "open"
+  name: Erdős #278
+  goal: maximum density of congruence covers
 
-status_summary: >
-  Project remains paper-worthy, but v9 overclaimed the weighted material.
-  Stable core is squarefree congruence packing via common-core graph links.
-  Weighted graph-link results should be treated as packable-subgraph optimization
-  or lower-bound machinery unless a layer-union upper bound is proved.
+current_center_of_gravity:
+  - squarefree product-space cylinder model
+  - common-core graph links
+  - exact packability as zero-defect layer-union
+  - corrected full-union layer optimization
+  - residual-core certificate for clique threshold t=n-4
+
+stable_results:
+  packing_spine:
+    - product-space cylinder model
+    - intersection-separating perfect packing
+    - pair-support theorem
+    - common-core theorem
+    - graph-link invariant chi_d(G)
+    - exact packability families: stars, complete bipartite small-side in Lean, project-level clique links
+  full_union:
+    - full-capacity one-layer matching-polynomial formula
+    - common-core full-capacity layer-partition formulation
+    - local defect-cover lemma D(H) >= tau(Gamma_H) q^2
+    - exact Opt_full(K_n, n-3) = binom(n,2)d^-2 - 3d^-4
+    - exact Opt_full(K_6, 2) = 15d^-2 - 15d^-4
+
+certificate_backed:
+  - name: clique full-union threshold t=n-4
+    statement: Opt_full(K_n,n-4)=binom(n,2)d^-2 - 15d^-4 for d>=n-1
+    status: certificate-backed / proof-writing needed
+    certificate: residual-core table with empty colors included
+    key_correction: residual model must include empty colors when h < r-4
+
+provisional_or_not_yet_lean:
+  - U_d(H) formalization
+  - defect-cover lemma formalization
+  - residual-core checker in Lean
+  - K_n,t=n-4 human-readable residual proof
 
 major_corrections:
-  - name: "Packable-subgraph vs full #278 maximum"
-    old_claim: "Weighted graph-link optima give exact #278 maxima in broad non-perfect regimes."
-    corrected_status: "They optimize packable subgraphs / disjoint constructions; full union can be larger."
-    witness: "One-layer K4 has packable value 3 p^-2 but proper-label union value 6 p^-2 - 3 p^-4."
-  - name: "Nonuniform clique-link n-2 criterion"
-    old_claim: "Delete two vertices; use c_i - 2 prefix inequalities."
-    corrected_status: "Use one triangle plus n-3 stars; delete three triangle vertices; use b_i - 3 prefix inequalities."
-  - name: "Arbitrary-weight clique threshold theorem"
-    old_claim: "Threshold graph on heaviest vertices is always weighted-optimal."
-    corrected_status: "False for arbitrary weights; demote/delete unless special hypotheses are proved."
-
-stable_abstractions:
-  - squarefree product-space cylinder model
-  - singleton residual-box reduction
-  - perfect packing
-  - intersection-separating coloring
-  - common-core theorem
-  - graph-link invariant chi_d(G)
-  - star-triangle normal form for chi_d(F)
-
-stable_packability_results:
-  - pair-support theorem
-  - star formula chi_d(K_1,r)=ceil(r/d)
-  - complete bipartite packability formula, Lean currently small-side only
-  - uniform clique-link theorem as project-level result, not yet Lean-formalized
-  - corrected arithmetic clique-link threshold, pending corrected proof writeup
-
-packable_subgraph_algorithms:
-  - fixed-budget XP algorithm for P_t(G) by triangle enumeration + max-flow
-  - fixed-treewidth DP schema for P_t(G)
-  - tree / triangle-free orientation-cost special cases
-
-true_maximum_frontier:
-  object: "U_d(H), the one-layer graph-link union optimum"
-  description: >
-    Choose one pair-cylinder for every edge of H and maximize actual union measure.
-    Intersections are governed by local consistency of endpoint labels.
-  first_target: >
-    Prove/refute that full-capacity proper local labeling is optimal, yielding the matching-polynomial expression.
-
-lean_status:
-  stable_formalized:
-    - product-space cylinder model
-    - perfect packing / intersection separation
-    - pair-support theorem
-    - common-core theorem with disjoint-petal hypothesis
-    - graph-link definitions and chi predicates
-    - stars and complete bipartite small-side theorem
-  avoid_formalizing_as_stated:
-    - old nonuniform clique criterion with c_i - 2
-    - arbitrary-weight clique threshold theorem as #278 maximum
-    - weighted graph-link results as exact full #278 maximum theorems
-
-repo_action:
-  replace_current_paper: true
-  replace_current_frontier_note: true
-  archive_v9: true
-  add_correction_notice: true
-  update_status_yaml: true
-  update_visualizer_yaml: true
+  - packable-subgraph optimization is not full #278 maximum coverage
+  - v12 residual-core model includes empty colors
+  - K_n,t=n-4 should not be advertised without certificate/checker attached
 
 best_next_targets:
-  - "Patch paper/repo to v10 corrected status."
-  - "Write full corrected nonuniform clique-link proof."
-  - "Develop U_d(H) layer-union theory."
-  - "Formalize star-triangle normal form for chi_d(F)."
+  - package residual-core certificate in repo
+  - update paper/current and frontier/current to v12
+  - decide whether certificate is executable checker or human-readable table
+  - after packaging, attack bipartite full-capacity analogue or human proof of residual table

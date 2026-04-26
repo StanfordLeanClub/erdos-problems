@@ -1,0 +1,108 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+\title{Squarefree Congruence Packing via Common-Core Graph Links\\Corrected Working Draft v10}
+\author{Stanford AI for Lean Club project notes}
+\date{April 25, 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+We develop a finite structural theory for squarefree congruence packing and related packable-subgraph optimization problems arising from Erd\H{o}s Problem \#278. This corrected draft separates perfect packing and packable-subgraph optimization from the full maximum-coverage problem. Perfect packing gives exact maximum densities in families where all cylinders can be chosen disjointly. Packable-subgraph optimization gives exact disjoint constructions and lower bounds, but it is not automatically the full \#278 maximum because overlapping non-packable cylinders may still add union measure. The stable contributions are the squarefree cylinder model, intersection-separating perfect packing, the pair-support and common-core theorems, the graph-link invariant $\chi_d(G)$, corrected clique-link packing criteria, the star-triangle normal form for $\chi_d(F)$, and algorithmic schemes for the packable-subgraph objective. The true maximum-coverage frontier is the one-layer union objective $U_d(H)$.
+\end{abstract}
+
+\section{Introduction}
+Erd\H{o}s Problem \#278 asks for the maximum density covered by prescribed congruence moduli. The minimum-density side is known; the maximum side remains open. The present project is not a solution of \#278. Its stable contribution is a structural theory for squarefree congruence packing and packable graph-link subproblems.
+
+Earlier drafts over-identified weighted packable-subgraph optimization with full maximum coverage. This draft corrects that. The paper should be read as a packing paper with a carefully marked bridge toward full maximum coverage.
+
+\section{Squarefree product-space model}
+Let $Q=\prod_{i=1}^d p_i$ be squarefree and $X=\prod_i\Omega_i$, with $|\Omega_i|=p_i$ initially. A support $S\subseteq[d]$ corresponds to the modulus $n_S=\prod_{i\in S}p_i$ and to an $S$-cylinder
+\[
+C_S(a)=\{x\in X:x_i=a_i\text{ for all }i\in S\},
+\qquad \mu(C_S)=1/n_S.
+\]
+Singleton supports reduce maximum coverage to a residual box in which coordinate sizes are $p_i-1$ or $p_i$.
+
+\section{Perfect packing}
+A support family $\mathcal H$ is perfectly packable iff there are local patterns $a_S\in\prod_{i\in S}\Omega_i$ such that for all distinct $S,T$,
+\[
+a_S|_{S\cap T}\ne a_T|_{S\cap T}.
+\]
+If this holds for the whole family, the union density is exactly $\sum_{S\in\mathcal H}1/n_S$.
+
+\section{Common-core graph links}
+For $\mathcal H=C*\mathcal L$ with petal supports disjoint from the core, let $D_C=\prod_{i\in C}d_i$. Then
+\[
+C*\mathcal L\text{ is perfectly packable}\iff \chi_{\rm pack}(\mathcal L)\le D_C.
+\]
+For graph links this gives $\chi_d(G)$, the least number of colors needed to partition $E(G)$ into classes with matching number at most $1$ and local degrees bounded by $d_v$.
+
+\section{Stable packability results}
+The pair-support theorem, star formula, complete bipartite formula, and uniform clique-link theorem remain in the stable packability bucket. The current Lean code covers the core packing definitions, pair-support theorem, common-core theorem, graph-link definitions, stars, and the small-side complete bipartite theorem.
+
+\subsection{Corrected nonuniform clique-link criterion}
+The previous $c_i-2$ criterion was wrong. In an $n-2$ color construction for $K_n$, the correct shape is one triangle plus $n-3$ stars. Hence each star center has base load $3$.
+
+\begin{theorem}[corrected $n-2$ construction criterion]
+Suppose there are three vertices $x,y,z$ with capacities at least $2$ such that, after sorting the remaining capacities as $b_1\le\cdots\le b_{n-3}$,
+\[
+\sum_{i=1}^k(b_i-3)\ge {k\choose2}\qquad(1\le k\le n-3).
+\]
+Then $K_n$ admits a decomposition into $n-2$ admissible intersecting classes: one triangle on $x,y,z$ and $n-3$ stars.
+\end{theorem}
+\begin{proof}[Proof sketch]
+Use the triangle $xyz$. The remaining vertices are star centers. Edges among star centers are assigned by a tournament; the star at $v$ has size $3+\operatorname{outdeg}(v)$. Landau's bounded score criterion gives the displayed prefix condition.
+\end{proof}
+
+The arithmetic clique-link corollary should be reproved using this corrected three-deleted-vertices criterion, including small-case checks.
+
+\section{Packable-subgraph optimization}
+For a weighted graph link define
+\[
+P_t(G)=\max\{\sum_{e\in F}w_e:F\subseteq E(G),\chi_d(F)\le t\}.
+\]
+This is not the full \#278 maximum in general.
+
+\begin{theorem}[star-triangle normal form]
+For a graph $F$ with capacities $d_v$,
+\[
+\chi_d(F)=\min_{\mathcal T,\vec H}\left(|\mathcal T|+\sum_v\left\lceil\frac{m_v}{d_v}\right\rceil\right),
+\]
+where $\mathcal T$ ranges over edge-disjoint admissible triangles, $H=F\setminus\bigcup_{T\in\mathcal T}E(T)$, $\vec H$ is an orientation of $H$, and $m_v$ is indegree at $v$.
+\end{theorem}
+
+For fixed $t$, $P_t(G)$ is computable in $n^{O(t)}$ time by enumerating triangle colors and packet counts, then solving a maximum-weight capacitated incidence assignment by flow. For fixed treewidth, $P_t(G)$ is computable by a finite-interface dynamic program on a nice tree decomposition.
+
+\section{Why this is not full maximum coverage}
+Consider one layer of $K_4$ with all coordinate sizes $p$. A one-color packable subgraph has at most three edges, value $3p^{-2}$. But assigning distinct local labels to incident edges at each vertex uses all six cylinders; adjacent cylinders are disjoint and only the three opposite edge pairs intersect, giving union measure
+\[
+6p^{-2}-3p^{-4}>3p^{-2}.
+\]
+Thus packable-subgraph optimization is not the full \#278 maximum.
+
+\section{The new maximum-coverage frontier}
+Define $U_d(H)$ as the maximum one-layer union measure obtained by choosing one pair-cylinder for every edge of $H$. The true common-core full-coverage problem with budget $D_C=t$ is governed by partitions $E(G)=E_1\sqcup\cdots\sqcup E_t$ and contributions $\sum_r U_d(G[E_r])$.
+
+In the full-capacity regime, proper local labeling gives the lower bound
+\[
+U_d(H)\ge \sum_{\emptyset\ne M\text{ matching in }H}(-1)^{|M|+1}\prod_{v\in V(M)}\frac1{d_v}.
+\]
+The best next target is to prove or refute optimality of this construction.
+
+\section{Conclusion}
+The project remains paper-worthy as a theory of squarefree congruence packing via common-core graph links. The corrected frontier is layer-union optimization, not more packable-subgraph formulas mislabeled as full \#278 maxima.
+
+\begin{thebibliography}{9}
+\bibitem{Bloom278} T. F. Bloom, Erd\H{o}s Problem \#278, \url{https://www.erdosproblems.com/278}, accessed 2026-04-25.
+\bibitem{Bloom202} T. F. Bloom, Erd\H{o}s Problem \#202, \url{https://www.erdosproblems.com/202}, accessed 2026-04-25.
+\bibitem{Bloom1190} T. F. Bloom, Erd\H{o}s Problem \#1190, \url{https://www.erdosproblems.com/1190}, accessed 2026-04-25.
+\bibitem{Cambie} S. Cambie, Proving it is impossible; on Erd\H{o}s problem \#278, arXiv:2508.18270, 2025.
+\bibitem{Landau} H. G. Landau, On dominance relations and the structure of animal societies: III. The condition for a score structure, Bull. Math. Biophys. 15 (1953), 143--148.
+\end{thebibliography}
+\end{document}

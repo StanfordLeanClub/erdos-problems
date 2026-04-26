@@ -45,6 +45,8 @@ The key distinction is:
 
 The true full-coverage frontier is now the one-layer union objective \(U_d(H)\): given a graph link \(H\), choose one pair-cylinder for every edge and maximize the actual union measure.
 
+As of v12, the project has post-v10 full-union results: a full-capacity one-layer matching-polynomial formula, an exact \(K_n,t=n-3\) theorem, and a certificate-backed \(K_n,t=n-4\) residual-core program. The \(K_n,t=n-4\) theorem should remain certificate-backed / proof-writing-needed until the residual table is packaged as an executable checker or human-checkable proof.
+
 ## Canonical current artifacts
 
 - Current paper draft: `paper/current/erdos278_paper.tex`

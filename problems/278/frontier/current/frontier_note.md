@@ -1,252 +1,341 @@
-# Erdős Problem #278 and companions — corrected frontier note v10
+# Erdős Problem #278 and companions — frontier note v12
 
 **Date:** April 25, 2026  
-**Status:** Paper-worthy, but the paper must be reframed. The stable core is **squarefree congruence packing via common-core graph links**. Several weighted results from v8/v9 are still useful as **packable-subgraph optimization**, but they should not be advertised as full #278 maximum-density theorems without additional layer-union upper bounds.
+**Status:** Still not a full solution to Erdős #278. The project remains paper-worthy. The main update since v11 is a finite residual-core certificate program for the corrected full-union clique threshold \(K_n,t=n-4\), including a crucial empty-color correction.
 
 ---
 
-## 0. Why v10 exists
+## 0. Purpose of this note
 
-The v9 frontier note promoted a star-triangle / separator-interface framework for weighted common-core graph links. That framework is still valuable, but a new critical pass found two serious issues:
+This note updates frontier v11. It records the corrected full-union progress after v10 and v11, with an explicit separation between:
 
-1. **Packable-subgraph optimization was being conflated with full #278 maximum coverage.** In #278, overlapping non-packable cylinders may still add union measure. Thus the weighted graph-link objective must be distinguished from the true union-measure objective.
-2. **The nonuniform clique-link \(n-2\) criterion was wrong as stated.** It used a two-vertex deletion and \(c_i-2\). The actual one-triangle-plus-stars construction uses three triangle vertices and star centers with base load \(3\), hence \(b_i-3\).
+1. stable theorem-level results;
+2. certificate-backed results that need a careful writeup/checker artifact before paper promotion;
+3. still-open targets.
 
-This correction is significant but not catastrophic. The project remains paper-worthy because the squarefree packing theory, common-core graph-link framework, and star-triangle normal form are still coherent and reusable.
+The v10 warning remains the governing discipline:
 
----
+> Packable-subgraph optimization is not the same as full #278 maximum coverage.
 
-## 1. Public context
-
-Erdős #278 asks for the maximum density covered by a finite family of prescribed congruence moduli. The minimum-density side is known by the aligned-residue inclusion-exclusion construction; the maximum side is open.
-
-Erdős #202 and #1190 concern disjoint congruence classes and reciprocal mass of disjoint systems. The packability side of this project remains directly relevant to those problems.
-
-Cambie's 2025 note gives external support for the strategic view that #278 should not be expected to have a single clean universal formula. The right target remains exact structural families and finite mechanisms.
+The post-v10 work is therefore about the actual **layer-union** objective, not the old packable-subgraph surrogate.
 
 ---
 
-## 2. Stable core framework
+## 1. Stable background retained from v10/v11
 
-### 2.1 Squarefree cylinder model
+### 1.1 Squarefree product-space model
 
-For squarefree
+For squarefree \(Q=\prod_i p_i\), a support \(S\) gives an \(S\)-cylinder in \(X=\prod_i\Omega_i\), with density
 \[
-Q=\prod_i p_i,
-\]
-work in
-\[
-X=\prod_i\Omega_i.
-\]
-A squarefree modulus
-\[
-n_S=\prod_{i\in S}p_i
-\]
-becomes an \(S\)-cylinder
-\[
-C_S(a)=\{x:x_i=a_i\text{ for all }i\in S\}
-\]
-with density
-\[
-\mu(C_S)=1/n_S.
+\mu(C_S)=\prod_{i\in S}\frac1{p_i}=\frac1{n_S}.
 \]
 
-### 2.2 Singleton residual-box reduction
+Singleton supports reduce to a residual box with coordinate sizes \(p_i\) or \(p_i-1\). This remains a maximum-coverage reduction, not a perfect-packing theorem by itself.
 
-Singleton supports reduce maximum coverage to a residual box with coordinate sizes
-\[
-d_i=p_i-1\quad\text{or}\quad p_i.
-\]
-This remains a valid maximum-coverage tool, not a perfect-packing theorem by itself.
+### 1.2 Perfect packing and common-core graph links
 
-### 2.3 Perfect packing
+Perfect packing is equivalent to intersection-separating local patterns. If a whole support family is perfectly packable, the union bound is attained and one obtains an exact #278 maximum for that family.
 
-A support family is perfectly packable iff it admits intersection-separating local patterns:
+For common-core graph links
 \[
-a_S|_{S\cap T}\ne a_T|_{S\cap T}
+C*G=\{C\cup e:e\in E(G)\},
 \]
-for all distinct supports \(S,T\). If a whole family is perfectly packable, then it gives an exact #278 maximum for that family because the union bound is attained.
+with core budget
+\[
+D_C=\prod_{i\in C}d_i,
+\]
+the packability threshold is governed by \(\chi_d(G)\):
+\[
+C*G\text{ perfectly packable}\iff \chi_d(G)\le D_C.
+\]
 
-### 2.4 Common-core graph links
-
-For
-\[
-\mathcal H=C*\mathcal L,
-\]
-with petal supports disjoint from the core, let
-\[
-D_C=\prod_{i\in C}d_i.
-\]
-Then
-\[
-C*\mathcal L\text{ perfectly packable}\iff \chi_{\mathrm{pack}}(\mathcal L)\le D_C.
-\]
-When \(\mathcal L\) is a graph \(G\), this becomes the graph-link invariant \(\chi_d(G)\).
+This remains the zero-defect case of the full layer-union theory.
 
 ---
 
-## 3. Stable packability results
+## 2. Corrected full-union object
 
-The following remain in the stable bucket:
+For a graph link \(H\), define the one-layer union objective
+\[
+U_d(H)=\max_{\text{endpoint labelings}}
+\mu\left(\bigcup_{uv\in E(H)}C_{uv}\right).
+\]
 
-- pair-support theorem: pair supports are packable iff matching number \(\le1\) and local degrees fit capacities;
-- common-core theorem;
-- star formula \(\chi_d(K_{1,r})=\lceil r/d\rceil\);
-- complete bipartite packability formula, with Lean currently covering the small-side regime;
-- uniform clique-link theorem for \(d\ge3\), as a project-level theorem not yet Lean-formalized;
-- binary clique-link formula, likewise project-level;
-- star-triangle normal form for arbitrary graph-link \(\chi_d(F)\).
+For a common-core graph link with \(t=D_C\) core patterns, the corrected full-union residual objective is
+\[
+\operatorname{Opt}_{\mathrm{full}}(G,t)
+=
+\max_{E(G)=E_1\sqcup\cdots\sqcup E_t}
+\sum_{r=1}^t U_d(G[E_r]),
+\]
+up to the common core-density normalization.
+
+This is the true #278 maximum-coverage object in the full-capacity graph-link regime.
 
 ---
 
-## 4. Corrected clique-link nonuniform theorem
+## 3. Stable theorem: full-capacity one-layer matching formula
 
-The v9 theorem deleted two vertices and used capacities \(c_i-2\). This is false: for example, it would incorrectly imply \(\chi_3(K_5)=3\), contradicting the volume lower bound \(\lceil10/3\rceil=4\).
-
-The corrected construction is:
-
-- choose a triangle \(x,y,z\) with capacities at least \(2\);
-- every other vertex is a star center;
-- a star center \(v\) must cover the three edges from \(v\) to the triangle, plus assigned edges to other star centers.
-
-So the tournament capacity is
+Assume
 \[
-outdeg(v)\le d_v-3.
+d_v\ge \deg_H(v)\qquad(\forall v\in V(H)).
 \]
-After sorting the star-center capacities as
+Then an optimal one-layer labeling may be chosen proper at every vertex, meaning incident edges at a vertex use distinct local labels.
+
+### Theorem 3.1
+
+Under the full-capacity hypothesis,
 \[
-b_1\le\cdots\le b_{n-3},
-\]
-the relevant prefix condition is
-\[
-\sum_{i=1}^k(b_i-3)\ge\binom{k}{2}
-\qquad(1\le k\le n-3).
-\]
-
-The arithmetic clique-link theorem is probably salvageable, but its proof must delete three small capacities rather than two and should include small-case checks.
-
----
-
-## 5. Weighted / algorithmic results after correction
-
-The star-triangle normal form remains correct:
-\[
-\chi_d(F)=
-\min_{\mathcal T,\vec H}
-\left(
-|\mathcal T|+
-\sum_v\left\lceil\frac{m_v}{d_v}\right\rceil
-\right),
-\]
-where \(\mathcal T\) is a set of edge-disjoint admissible triangles and \(\vec H\) orients the remaining edges.
-
-But the objective it controls is the packable-subgraph objective
-\[
-P_t(G)=\max\{w(F):F\subseteq E(G),\chi_d(F)\le t\},
-\]
-not the full #278 maximum coverage objective.
-
-Stable algorithmic consequences for \(P_t\):
-
-1. fixed-budget exact XP algorithm by enumerating triangle colors and packet counts, then solving a max-flow / capacitated incidence assignment;
-2. fixed-treewidth DP schema for \(P_t\);
-3. tree and triangle-free special cases as simplified orientation-cost problems.
-
-These are useful for disjoint constructions and lower bounds, but should not be called exact #278 maximum theorems.
-
----
-
-## 6. Main demotion: packable-subgraph does not equal full union maximum
-
-A one-layer \(K_4\) shows the problem.
-
-With uniform coordinate size \(p\), the packable one-layer optimum has value
-\[
-3p^{-2},
-\]
-because one intersecting edge family in \(K_4\) has at most three edges.
-
-But assigning distinct local labels to the incident edges at each vertex lets all adjacent edge-cylinders be disjoint. The six edge cylinders then have union measure
-\[
-6p^{-2}-3p^{-4},
-\]
-which is strictly larger than \(3p^{-2}\). Thus overlapping but non-packable supports can still improve #278 maximum coverage.
-
-This invalidates the old phrasing that weighted clique/bipartite graph-link optimization gave exact #278 maxima in those non-perfect regimes.
-
----
-
-## 7. New true maximum-coverage frontier
-
-Define \(U_d(H)\) to be the true one-layer union optimum for a graph \(H\): choose one pair-cylinder for every edge of \(H\), maximizing union measure.
-
-For common-core graph links with budget \(t=D_C\), the full union problem becomes a layer partition problem:
-\[
-E(G)=E_1\sqcup\cdots\sqcup E_t,
-\]
-with contribution
-\[
-\sum_r U_d(G[E_r])
-\]
-up to the core-density factor.
-
-The key one-layer combinatorics is local consistency: an intersection of edge-cylinders is nonempty iff all selected edge labels are locally consistent at every vertex.
-
-In the full-capacity regime \(d_v\ge\deg_H(v)\), assigning distinct labels to incident edges gives the lower bound
-\[
-U_d(H)\ge
-\sum_{\emptyset\ne M\text{ matching in }H}
+\boxed{
+U_d(H)=
+\sum_{\varnothing\ne M\text{ matching in }H}
 (-1)^{|M|+1}
 \prod_{v\in V(M)}\frac1{d_v}.
+}
 \]
 
-The best next theorem target is:
+Proof idea: refining labels at one vertex cannot decrease coverage pointwise. Full capacity allows refining until all incident edges use distinct labels. Then intersections of edge-cylinders survive exactly for graph matchings, and inclusion-exclusion gives the formula.
 
-> Prove or refute that this proper-local-label construction is optimal for \(U_d(H)\) in the full-capacity one-layer regime.
+Uniform clique case: if \(d_v=d\),
+\[
+U(K_n)=
+\sum_{k=1}^{\lfloor n/2\rfloor}
+(-1)^{k+1}
+\frac{n!}{2^k k!(n-2k)!}d^{-2k}.
+\]
 
----
-
-## 8. Paper-worthiness after correction
-
-Paper-worthiness remains. The paper is no longer accurately described as "exact weighted #278 maximum formulas beyond packing." It should instead be:
-
-> **Squarefree congruence packing via common-core graph links, plus packable-subgraph optimization and the layer-union bridge to full #278 maximum coverage.**
-
-This is still one paper, not a new separate project, but it requires reorganization.
-
----
-
-## 9. Current recommended paper outline
-
-1. Public context and why no universal formula should be expected.
-2. Squarefree product-space cylinder model.
-3. Perfect packing and intersection-separating patterns.
-4. Pair supports and common-core theorem.
-5. Graph-link invariant \(\chi_d(G)\).
-6. Stable packability families: stars, complete bipartite links, clique links.
-7. Corrected nonuniform clique-link criterion and arithmetic clique-link corollary.
-8. Star-triangle normal form for \(\chi_d(F)\).
-9. Packable-subgraph optimization \(P_t(G)\): fixed-budget and fixed-treewidth exact algorithms.
-10. Why \(P_t\) is not full #278 maximum: the \(K_4\) one-layer example.
-11. True layer-union objective \(U_d(H)\) and matching-polynomial lower bound.
-12. Lean formalization status and roadmap.
+Uniform bipartite case with \(q=(d_Ld_R)^{-1}\):
+\[
+U(K_{a,b})=
+\sum_{k=1}^{\min(a,b)}
+(-1)^{k+1}k!\binom ak\binom bk q^k.
+\]
 
 ---
 
-## 10. Current best next targets
+## 4. Stable theorem: local defect-cover lemma
 
-1. Patch the paper and repo to remove overclaims.
-2. Stabilize the corrected nonuniform clique-link proof.
-3. Develop the one-layer union objective \(U_d(H)\).
-4. Formalize the stable packing spine and star-triangle normal form.
-5. Only after that, return to bounded-capacity weighted \(K_{a,b}\), now clearly as packable-subgraph optimization unless a layer-union theorem is proved.
+For uniform full-capacity clique layers, set
+\[
+q=d^{-2}.
+\]
+For \(H\subseteq K_n\), define
+\[
+D(H)=|E(H)|q-U(H).
+\]
+Let \(\Gamma_H\) be the disjointness/conflict graph of \(H\): vertices are edges of \(H\), and two vertices are adjacent iff the corresponding edges of \(K_n\) are disjoint.
+
+### Theorem 4.1
+
+\[
+\boxed{D(H)\ge \tau(\Gamma_H)q^2.}
+\]
+
+Proof idea: induct on \(\tau(\Gamma_H)\). Removing an edge-vertex from a minimum vertex cover lowers \(\tau\) by one. Adding it back increases defect by the measure of its intersection with the previous union; since it has a conflict-neighbor, this increase is at least \(q^2\).
+
+---
+
+## 5. Stable theorem: exact full-union clique value at \(t=n-3\)
+
+Let \(d\ge n-1\) and \(q=d^{-2}\).
+
+### Theorem 5.1
+
+\[
+\boxed{
+\operatorname{Opt}_{\mathrm{full}}(K_n,n-3)=
+\binom n2q-3q^2.
+}
+\]
+
+Proof idea: in any \((n-3)\)-layer partition, delete a minimum conflict-cover from each layer. The remaining layers are intersecting, and \(n-3\) intersecting families cover at most \(\binom n2-3\) edges. Hence total conflict-cover size is at least \(3\), so the defect-cover lemma gives loss at least \(3q^2\). Equality is attained by \(n-4\) star layers plus one \(K_4\) layer.
+
+### Common-core corollary
+
+For \(C*K_n\) with \(D_C=n-3\) and uniform full petal capacity \(d\ge n-1\), the residual maximum is
+\[
+\frac1{D_C}\left(\binom n2d^{-2}-3d^{-4}\right).
+\]
+
+---
+
+## 6. Stable base case: \(K_6,t=2=n-4\)
+
+### Theorem 6.1
+
+For uniform full petal capacity \(d\ge5\), with \(q=d^{-2}\),
+\[
+\boxed{
+\operatorname{Opt}_{\mathrm{full}}(K_6,2)=15q-15q^2.
+}
+\]
+
+Construction: one star layer plus one \(K_5\)-layer.
+
+Lower-bound idea: \(K_6\) has \(15\) perfect matchings. In any two-coloring of a perfect matching's three edges, two share a color. Each monochromatic disjoint edge-pair belongs to a unique perfect matching. Thus every two-coloring has at least \(15\) monochromatic disjoint pairs, and the higher-order correction is controlled by \(q\le1/25\).
+
+---
+
+## 7. New v12 update: residual-core certificate program for \(K_n,t=n-4\)
+
+The next conjectured full-union theorem is
+\[
+\boxed{
+\operatorname{Opt}_{\mathrm{full}}(K_n,n-4)
+\stackrel{?}{=}
+\binom n2q-15q^2
+\qquad(d\ge n-1).
+}
+\]
+
+Candidate construction: \(n-5\) star layers plus one \(K_5\)-layer. The \(K_5\)-layer has exactly \(15\) disjoint edge-pairs and no three-edge matching, so the defect is \(15q^2\).
+
+### 7.1 Residual-core reduction
+
+Assume a putative counterexample. Delete a vertex cover from each color's conflict graph. If the first-order defect were below \(15\), at most \(14\) edge-vertices are deleted. The remaining color classes are intersecting and cover at least
+\[
+\binom n2-14
+\]
+edges.
+
+If the remaining intersecting skeleton has \(s\) star classes and \(h\) triangle classes, set
+\[
+r=n-s.
+\]
+The standard support bound
+\[
+|E_{\mathrm{skel}}|\le s(n-s)+\binom s2+3h,
+\]
+with \(h\le r-4\), forces
+\[
+4\le r\le7.
+\]
+
+Thus the global supersaturation problem reduces to residual cores on at most seven vertices.
+
+### 7.2 Key v12 correction: empty colors
+
+The residual insertion model must include **empty colors**.
+
+If the residual core has size \(r\) and the skeleton contains \(h<r-4\) residual triangle colors, then
+\[
+r-4-h
+\]
+colors are empty after the deletion step. Residual edges can be assigned to these empty colors with no skeleton-base cost. Earlier informal residual checks that omitted these colors had the wrong model, even though the corrected finite certificate still supports the same lower bound.
+
+The residual model must include:
+
+1. triangle skeleton colors;
+2. empty colors;
+3. star colors with correct score/leaf-size costs \(r-2,r-1,r,\ldots\);
+4. internal conflicts among residual edges assigned to the same color;
+5. the full defect polynomial, not just first-order pair counts.
+
+### 7.3 Certificate-level finite table
+
+The finite certificate v1 records the following minima for the normalized defect \(\mathrm{defect}/q^2\):
+
+\[
+\begin{array}{c|c|c|c|c}
+r&h&\text{residual edges}&\text{empty colors}&\min(\mathrm{defect}/q^2)\\
+\hline
+4&0&6&0&15\\
+5&0&10&1&15\\
+5&1&7&0&15\\
+6&0&15&2&15\\
+6&1&12&1&15\\
+6&2&9&0&15\\
+6&2&9&0&15\\
+7&2&15&1&15\\
+7&2&15&1&15\\
+7&3&12&0&16\\
+7&3&12&0&16\\
+7&3&12&0&16
+\end{array}
+\]
+
+Repeated rows correspond to non-isomorphic edge-disjoint triangle skeletons.
+
+### 7.4 Current status of \(K_n,t=n-4\)
+
+The theorem is now **certificate-backed but not yet fully paper-polished**.
+
+The correct status is:
+
+\[
+\boxed{
+\operatorname{Opt}_{\mathrm{full}}(K_n,n-4)=
+\binom n2d^{-2}-15d^{-4}
+}
+\]
+
+is essentially reduced to the finite residual certificate. It should be promoted to theorem only once the paper includes either:
+
+- an executable checker/certificate file in the repo; or
+- a human-checkable residual case table with proof of the entries.
+
+---
+
+## 8. Consequences for #278
+
+The project now has genuine corrected full-union results for restricted squarefree common-core clique links:
+
+1. full-capacity one-layer graph links have a matching-polynomial formula;
+2. full-capacity common-core graph links reduce to layer partitions;
+3. full-capacity clique links at \(D_C=n-3\) are exactly solved;
+4. \(K_6,D_C=2\) is exactly solved;
+5. \(K_n,D_C=n-4\) is at certificate-backed status pending final packaging.
+
+This is still not a full solution to #278. It is, however, real movement on the corrected maximum-coverage side, not merely packing.
+
+---
+
+## 9. Lean/formalization status
+
+No Lean source change is required by the v12 update. The current Lean code formalizes the stable packing spine and complete-bipartite small-side packability, not the new layer-union residual-core certificate.
+
+If desired, a future Lean or external-verifier target is:
+
+- define \(U_d(H)\) in a finite product space;
+- formalize the full-capacity one-layer matching formula;
+- formalize/check the finite residual-core certificate for \(K_n,t=n-4\).
+
+For now, the finite certificate should live as an external computational artifact, not as a Lean theorem.
+
+---
+
+## 10. Paper-worthiness and paper scale
+
+The project remains paper-worthy, and this is still **more material for the current #278 paper**, not a separate paper.
+
+However, the paper should now be updated from v10 to include a new full-union section:
+
+1. one-layer full-capacity matching formula;
+2. layer-partition formulation;
+3. defect-cover lemma;
+4. exact \(K_n,t=n-3\) theorem;
+5. certificate-backed \(K_n,t=n-4\) status and residual checker.
+
+---
+
+## 11. Current best next action
+
+Do not run another broad combo yet. The best next action is packaging and verification:
+
+1. put the residual-core certificate in the repo;
+2. add a checker or a human-readable certificate table;
+3. update the frontier/current artifacts to v12;
+4. patch the paper to include the new full-union section;
+5. only then resume theorem-pushing, likely toward either a fully human proof of the residual table or the bipartite analogue.
 
 ---
 
 ## References
 
-- T. F. Bloom, Erdős Problem #278, https://www.erdosproblems.com/278, accessed 2026-04-25.
-- T. F. Bloom, Erdős Problem #202, https://www.erdosproblems.com/202, accessed 2026-04-25.
-- T. F. Bloom, Erdős Problem #1190, https://www.erdosproblems.com/1190, accessed 2026-04-25.
-- S. Cambie, *Proving it is impossible; on Erdős problem #278*, arXiv:2508.18270, 2025.
-- H. G. Landau, *On dominance relations and the structure of animal societies: III. The condition for a score structure*, Bull. Math. Biophys. 15 (1953), 143-148.
+- T. F. Bloom, *Erdős Problem #278*, https://www.erdosproblems.com/278.
+- T. F. Bloom, *Erdős Problem #202*, https://www.erdosproblems.com/202.
+- T. F. Bloom, *Erdős Problem #1190*, https://www.erdosproblems.com/1190.
+- S. Cambie, *Proving it is impossible; on Erdős problem #278*, arXiv:2508.18270.
+- Frontier note v10, `erdos278_frontier_note_v10_corrected.md`.
+- Frontier note v11, `erdos278_frontier_note_v11_full_union.md`.
+- Residual-core certificate v1, `erdos278_residual_core_certificate_v1.md`.
