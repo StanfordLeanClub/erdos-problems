@@ -2,7 +2,7 @@
 
 This repository collects research progress made by Stanford's AI for Lean club on selected Erdős problems. 
 
-NOTE: current work has primarily been done in collaboration with ChatGPT-5.4-extended-thinking. With access better models, there is room for substantial improvement. 
+**NOTE**: current work has primarily been done in collaboration with ChatGPT-5.4-extended-thinking (on the GPT Plus plan, not Pro). With access better models, there is room for substantial improvement. 
 
 The repo is organized **by problem**, so each problem folder can evolve semi-independently as the research frontier, paper draft, visualizer state, certificates, and Lean formalization change.
 
